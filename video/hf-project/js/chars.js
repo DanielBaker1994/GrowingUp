@@ -40,19 +40,30 @@ function makePerson(parent, o) {
   P.set = (p) => {
     const w = p.walk || 0, A = p.amp == null ? 0 : p.amp;
     const sw = Math.sin(w);
-    const bob = -Math.abs(Math.cos(w)) * 3.4 * A - (p.dip || 0);
+    const dip = p.dip || 0, bob = -Math.abs(Math.cos(w)) * 3.4 * A + dip; // dip lowers the hips (knees bend)
     const legF = 30 * A * sw, legN = -30 * A * sw;
     const armF = p.afA != null ? p.afA : -24 * A * sw, armN = p.anA != null ? p.anA : 24 * A * sw;
     g.setAttribute('transform', `translate(${R2(p.x)} ${R2(p.y)}) scale(${(p.s || 1) * (p.flip || 1)} ${p.s || 1})`);
-    P.lf.setAttribute('transform', `rotate(${-legF} 0 -90)`);
-    P.ln.setAttribute('transform', `rotate(${-legN} 0 -90)`);
-    P.af.setAttribute('transform', `translate(0 ${bob}) rotate(${-armF} 0 -142)`);
-    P.an.setAttribute('transform', `translate(0 ${bob}) rotate(${-armN} 0 -142)`);
+    // a dip bends the knees: legs shorten about the feet so the hips drop instead of the coat sliding over them
+    const lsq = dip > 0 ? ` translate(0 0) scale(1 ${R2(((92 - dip) / 92) * 1000) / 1000})` : '';
+    P.lf.setAttribute('transform', `rotate(${-legF} 0 -90)` + lsq);
+    P.ln.setAttribute('transform', `rotate(${-legN} 0 -90)` + lsq);
     const lean = p.lean || 0;
+    // a lifter bends at the hip: tuck the near leg under the coat so the hem, not the thigh, reads in front
+    if (p.armFollow && P.ln.nextSibling !== P.bd) g.insertBefore(P.ln, P.bd);
+    // armFollow: the shoulders ride the lean (for bending to lift); otherwise arms hang from the upright shoulder
+    const sdx = p.armFollow ? 52 * Math.sin(lean * D2R) : 0, sdy = p.armFollow ? 52 * (1 - Math.cos(lean * D2R)) : 0;
+    // afK/anK shorten an arm that reaches toward or away from the lens (foreshortening)
+    const ak = (k) => (k == null || k === 1 ? '' : ` translate(0 -142) scale(1 ${R2(k * 1000) / 1000}) translate(0 142)`);
+    P.af.setAttribute('transform', `translate(${R2(sdx)} ${R2(bob + sdy)}) rotate(${-armF} 0 -142)` + ak(p.afK));
+    P.an.setAttribute('transform', `translate(${R2(sdx)} ${R2(bob + sdy)}) rotate(${-armN} 0 -142)` + ak(p.anK));
     P.bd.setAttribute('transform', `translate(0 ${bob}) rotate(${lean} 0 -90)`);
     P.hd.setAttribute('transform', `translate(0 ${bob}) rotate(${lean + (p.tilt || 0)} 0 -90)`);
     P.g.style.display = p.hide ? 'none' : '';
   };
+  /* where a hand would sit for arm angle a (deg, 0 = down, 90 = forward) given the pose; and the angle to reach a point */
+  P.shoulder = (p) => { const L = (p.lean || 0) * D2R, fol = p.armFollow ? 1 : 0; return [52 * Math.sin(L) * fol, -142 + 52 * (1 - Math.cos(L)) * fol + (p.dip || 0)]; };
+  P.reach = (p, tx, ty) => { const s = p.s || 1, fl = p.flip || 1, lx = (tx - p.x) / (s * fl), ly = (ty - p.y) / s, sh = P.shoulder(p), vx = lx - sh[0], vy = ly - sh[1]; return { a: Math.atan2(vx, vy) / D2R, d: Math.hypot(vx, vy) }; };
   return P;
 }
 
@@ -102,6 +113,7 @@ function makeDog(parent, o) {
       (c.old ? fl(56, -70, 8, 4, 29, '#8f8e98') : '') +
       `<circle cx="68" cy="-55" r="3.4" fill="#0a090c"/><circle cx="54" cy="-64" r="2.4" fill="#e9e6ee"/><circle cx="54.6" cy="-64" r="1.4" fill="#0a090c"/>` +
       `<g class="er">${fl(36, -50, 9, 19, 31, shade(c.body, 0.1))}${fl(36, -50, 8, 17.5, 32, c.dark)}</g>` +
+      (c.collar ? `<path fill="${c.collar}" d="M27 -46 Q34 -40 44 -42 L46 -36 Q34 -33 25 -40Z"/>` : '') +
       `</g>`;
   }
   g.innerHTML = inner;
@@ -117,7 +129,7 @@ function makeDog(parent, o) {
     if (gl) { a1 = Math.sin(gp) * stride; a2 = Math.sin(gp + 0.35) * stride; a3 = Math.sin(gp + 2.3) * stride; a4 = Math.sin(gp + 2.65) * stride; }
     else { a1 = Math.sin(gp) * stride; a2 = -a1; a3 = a2; a4 = a1; }
     const sit = p.sit || 0, lie = p.lie || 0;
-    const bob = gl ? -Math.abs(Math.sin(gp * 0.5 + 0.4)) * 11 * A : -Math.abs(Math.sin(gp)) * 3 * A;
+    const bob = gl ? -Math.max(0, Math.sin(gp + 0.4)) * 8 * A : -Math.abs(Math.sin(gp)) * 2 * A;
     const bow = p.bow || 0;
     const pitch = (gl ? Math.sin(gp + 1.1) * 5 * A : 0) + bow * 15;
     const drop = lie * 16 + sit * 9;
@@ -126,10 +138,14 @@ function makeDog(parent, o) {
       let t = `rotate(${-a} ${{ l1: -27, l2: -22, l3: 28, l4: 33 }[rear]} ${LY})`;
       return t;
     };
+    // legs ride with the body (so paws leave the ground only when the whole dog is airborne); a planted leg
+    // telescopes by 1/cos(a) so its paw stays exactly on the ground line instead of floating or sinking
     const legT = (k, a, rear) => {
       const sq = 1 - lie * 0.7 - (rear && sit ? sit * 0.5 : 0);
       const px = { l1: -27, l2: -22, l3: 28, l4: 33 }[k];
-      return `translate(0 ${R2(-bob * 0.0 + (1 - sq) * -LY * 0)}) rotate(${R2(-a)} ${px} ${LY}) translate(${px} ${LY}) scale(1 ${R2(sq)}) translate(${-px} ${-LY})`;
+      const reach = lie || sit ? 1 : clamp((-LY - bob) / (-LY * Math.cos(a * D2R)), 0.8, 1.25);
+      const ks = sq * reach;
+      return `translate(0 ${R2(bob)}) rotate(${R2(-a)} ${px} ${LY}) translate(${px} ${LY}) scale(1 ${R2(ks * 1000) / 1000}) translate(${-px} ${-LY})`;
     };
     D.l1.setAttribute('transform', legT('l1', a1, true));
     D.l2.setAttribute('transform', legT('l2', a2, true));
@@ -143,39 +159,63 @@ function makeDog(parent, o) {
   return D;
 }
 
-/* ---------- people seen from behind (2025 deck) ---------- */
+/* ---------- people seen from behind (2025 deck) or from the front (front:true); pants/sleeve/hat for cold weather ---------- */
 function makePersonBack(parent, o) {
-  const c = Object.assign({ top: '#3f6aa8', shorts: '#1c1d22', skin: '#e2b08e', hair: '#5a3d28', shoe: '#e8e6e2', bald: 0, pony: false, h: 1 }, o);
+  const c = Object.assign({ top: '#3f6aa8', shorts: '#1c1d22', skin: '#e2b08e', hair: '#5a3d28', shoe: '#e8e6e2', bald: 0, pony: false, h: 1, pants: null, sleeve: false, mitt: null, hat: null, front: false }, o);
   const g = svgEl('g');
   const H = c.h;
-  const leg = (cls, x) => `<g class="${cls}"><path fill="${c.shorts}" d="M${x - 11} -104 L${x + 11} -104 L${x + 10} -64 L${x - 10} -64Z"/><path fill="${c.skin}" d="M${x - 7} -65 L${x + 7} -65 L${x + 6} -12 L${x - 6} -12Z"/><path fill="${c.shoe}" d="M${x - 8} -13 L${x + 8} -13 L${x + 9} 0 L${x - 9} 0Z"/></g>`;
-  const arm = (cls, sx) => `<g class="${cls}"><path fill="${c.top}" d="M${sx - 7} -168 L${sx + 7} -168 L${sx + 7} -140 L${sx - 7} -140Z"/><path fill="${c.skin}" d="M${sx - 5.5} -141 L${sx + 5.5} -141 L${sx + 4.5} -96 L${sx - 4.5} -96Z"/><circle fill="${c.skin}" cx="${sx}" cy="-94" r="6"/></g>`;
+  const leg = (cls, x) => c.pants
+    ? `<g class="${cls}"><path fill="${c.pants}" d="M${x - 11} -104 L${x + 11} -104 L${x + 9} -12 L${x - 9} -12Z"/><path fill="${shade(c.pants, -0.2)}" d="M${x - 9.5} -40 L${x + 9.5} -40 L${x + 9} -30 L${x - 9} -30Z" opacity=".5"/><path fill="${c.shoe}" d="M${x - 9} -14 L${x + 9} -14 L${x + 10} 0 L${x - 10} 0Z"/></g>`
+    : `<g class="${cls}"><path fill="${c.shorts}" d="M${x - 11} -104 L${x + 11} -104 L${x + 10} -64 L${x - 10} -64Z"/><path fill="${c.skin}" d="M${x - 7} -65 L${x + 7} -65 L${x + 6} -12 L${x - 6} -12Z"/><path fill="${c.shoe}" d="M${x - 8} -13 L${x + 8} -13 L${x + 9} 0 L${x - 9} 0Z"/></g>`;
+  const arm = (cls, sx) => c.sleeve
+    ? `<g class="${cls}"><path fill="${shade(c.top, -0.08)}" d="M${sx - 7.5} -168 L${sx + 7.5} -168 L${sx + 6} -100 L${sx - 6} -100Z"/><path fill="${shade(c.top, -0.25)}" d="M${sx - 6.2} -106 L${sx + 6.2} -106 L${sx + 6} -99 L${sx - 6} -99Z"/><circle fill="${c.mitt || c.skin}" cx="${sx}" cy="-94" r="7"/></g>`
+    : `<g class="${cls}"><path fill="${c.top}" d="M${sx - 7} -168 L${sx + 7} -168 L${sx + 7} -140 L${sx - 7} -140Z"/><path fill="${c.skin}" d="M${sx - 5.5} -141 L${sx + 5.5} -141 L${sx + 4.5} -96 L${sx - 4.5} -96Z"/><circle fill="${c.skin}" cx="${sx}" cy="-94" r="6"/></g>`;
   const hr = 17;
+  const hat = c.hat ? `<path fill="${c.hat}" d="M${-hr - 1.5} -203 Q0 ${-hr - 222} ${hr + 1.5} -203Z"/><rect x="${-hr - 2}" y="-209" width="${hr * 2 + 4}" height="9" rx="3.5" fill="${shade(c.hat, -0.2)}"/>` : '';
+  const head = c.front
+    ? `<circle cx="-${hr - 2}" cy="-196" r="4.5" fill="${c.skin}"/><circle cx="${hr - 2}" cy="-196" r="4.5" fill="${c.skin}"/>` +
+      `<circle cx="0" cy="-202" r="${hr}" fill="${c.hair}"/><ellipse cx="0" cy="-196" rx="14.5" ry="15.5" fill="${c.skin}"/>` +
+      `<path fill="${c.hair}" d="M-16 -203 Q-6 -216 16 -205 Q12 -214 0 -216 Q-13 -215 -16 -203Z"/>` +
+      `<circle cx="-5.5" cy="-198" r="1.9" fill="#2a1d17"/><circle cx="5.5" cy="-198" r="1.9" fill="#2a1d17"/><path fill="none" stroke="#9a5a44" stroke-width="1.6" stroke-linecap="round" d="M-4 -187.5 Q0 -185.5 4 -187.5"/>` +
+      `<ellipse cx="-8" cy="-191" rx="3" ry="2" fill="#e08a7a" opacity=".35"/><ellipse cx="8" cy="-191" rx="3" ry="2" fill="#e08a7a" opacity=".35"/>` + hat
+    : `<circle cx="-${hr - 2}" cy="-196" r="4.5" fill="${c.skin}"/><circle cx="${hr - 2}" cy="-196" r="4.5" fill="${c.skin}"/>` +
+      `<circle cx="0" cy="-200" r="${hr}" fill="${c.bald ? c.skin : c.hair}"/>` +
+      (c.bald ? `<path fill="${c.hair}" d="M${-hr} -198 Q0 -176 ${hr} -198 L${hr} -188 Q0 -174 ${-hr} -188Z"/>` : '') +
+      (c.pony ? `<path fill="${c.hair}" d="M-5 -205 Q10 -196 6 -170 Q2 -158 -2 -170 Q2 -186 -5 -195Z"/><rect x="-5" y="-208" width="10" height="5" rx="2" fill="${shade(c.hair, 0.3)}"/>` : '') + hat;
+  const tLen = c.pants ? -92 : -100;
   g.innerHTML =
     `<ellipse cx="0" cy="1" rx="30" ry="6" fill="#000" opacity=".22"/>` +
-    leg('ll', -11) + leg('lr', 11) +
-    `<g class="bd"><path fill="${c.top}" d="M-24 -172 Q0 -180 24 -172 L26 -100 Q0 -96 -26 -100Z"/><path fill="${shade(c.top, -0.18)}" d="M-26 -112 Q0 -108 26 -112 L26 -100 Q0 -96 -26 -100Z"/></g>` +
+    `<g class="lg">` + leg('ll', -11) + leg('lr', 11) + `</g>` +
+    `<g class="bd"><path fill="${c.top}" d="M-24 -172 Q0 -180 24 -172 L26 ${tLen} Q0 ${tLen + 4} -26 ${tLen}Z"/><path fill="${shade(c.top, -0.18)}" d="M-26 ${tLen - 12} Q0 ${tLen - 8} 26 ${tLen - 12} L26 ${tLen} Q0 ${tLen + 4} -26 ${tLen}Z"/>` +
+    (c.front && c.sleeve ? `<path fill="none" stroke="${shade(c.top, -0.3)}" stroke-width="2" d="M0 -172 L0 ${tLen + 2}"/><path fill="${shade(c.top, -0.12)}" d="M-12 -176 L0 -166 L12 -176 L10 -182 L-10 -182Z"/>` : '') +
+    (!c.front && c.sleeve ? `<path fill="${shade(c.top, -0.12)}" d="M-13 -178 Q0 -184 13 -178 L12 -170 Q0 -174 -12 -170Z"/>` : '') + `</g>` +
     arm('al', -30) + arm('ar', 30) +
-    `<g class="hd"><rect x="-7" y="-186" width="14" height="14" fill="${shade(c.skin, -0.08)}"/>` +
-    `<circle cx="-${hr - 2}" cy="-196" r="4.5" fill="${c.skin}"/><circle cx="${hr - 2}" cy="-196" r="4.5" fill="${c.skin}"/>` +
-    `<circle cx="0" cy="-200" r="${hr}" fill="${c.bald ? c.skin : c.hair}"/>` +
-    (c.bald ? `<path fill="${c.hair}" d="M${-hr} -198 Q0 -176 ${hr} -198 L${hr} -188 Q0 -174 ${-hr} -188Z"/>` : '') +
-    (c.pony ? `<path fill="${c.hair}" d="M-5 -205 Q10 -196 6 -170 Q2 -158 -2 -170 Q2 -186 -5 -195Z"/><rect x="-5" y="-208" width="10" height="5" rx="2" fill="${shade(c.hair, 0.3)}"/>` : '') +
-    `</g>`;
+    `<g class="hd"><rect x="-7" y="-186" width="14" height="14" fill="${shade(c.skin, -0.08)}"/>` + head + `</g>`;
   g.setAttribute('data-h', H);
   parent.appendChild(g);
   const q = (s) => g.querySelector(s);
-  const P = { g, ll: q('.ll'), lr: q('.lr'), al: q('.al'), ar: q('.ar'), bd: q('.bd'), hd: q('.hd') };
-  /* x,y,s; walk phase + amp; alA/arA arm angles (deg, + = raise outward); alBend/arBend -> hands to head; head turn px; lean deg */
+  const P = { g, ll: q('.ll'), lr: q('.lr'), lg: q('.lg'), al: q('.al'), ar: q('.ar'), bd: q('.bd'), hd: q('.hd') };
+  /* x,y,s; walk phase + amp; alA/arA arm angles (deg, + = raise outward); alK/arK arm length (foreshortening);
+     crouch 0..1.3 (knees bend, torso tips toward/away from camera); head turn px; lean deg */
   P.set = (p) => {
-    const w = p.walk || 0, A = p.amp || 0, bob = -Math.abs(Math.cos(w)) * 2.4 * A;
+    const w = p.walk || 0, A = p.amp || 0, bob = -Math.abs(Math.cos(w)) * 2.4 * A, k = p.crouch || 0;
+    const hipDn = 104 * 0.3 * k, torso = 1 - 0.35 * k, shDn = hipDn + 62 * 0.35 * k, hdDn = hipDn + 68 * 0.35 * k;
     g.setAttribute('transform', `translate(${R2(p.x)} ${R2(p.y)}) scale(${p.s || 1})`);
+    P.lg.setAttribute('transform', `scale(1 ${R2((1 - 0.3 * k) * 1000) / 1000})`);
     P.ll.setAttribute('transform', `translate(0 ${R2(Math.max(0, Math.sin(w)) * -6 * A)})`);
     P.lr.setAttribute('transform', `translate(0 ${R2(Math.max(0, -Math.sin(w)) * -6 * A)})`);
-    P.al.setAttribute('transform', `translate(0 ${R2(bob)}) rotate(${R2(p.alA || 0)} -30 -166)`);
-    P.ar.setAttribute('transform', `translate(0 ${R2(bob)}) rotate(${R2(-(p.arA || 0))} 30 -166)`);
-    P.bd.setAttribute('transform', `translate(0 ${R2(bob)}) rotate(${R2(p.lean || 0)} 0 -100)`);
-    P.hd.setAttribute('transform', `translate(${R2(p.turn || 0)} ${R2(bob + (p.nod || 0))}) rotate(${R2(p.lean || 0)} 0 -100)`);
+    const armT = (a, sx, kk) => `translate(0 ${R2(bob + shDn)}) rotate(${R2(a)} ${sx} -166) translate(${sx} -166) scale(1 ${R2((kk == null ? 1 : kk) * 1000) / 1000}) translate(${-sx} 166)`;
+    P.al.setAttribute('transform', armT(p.alA || 0, -30, p.alK));
+    P.ar.setAttribute('transform', armT(-(p.arA || 0), 30, p.arK));
+    P.bd.setAttribute('transform', `translate(0 ${R2(bob + hipDn)}) rotate(${R2(p.lean || 0)} 0 -100) translate(0 -104) scale(1 ${R2(torso * 1000) / 1000}) translate(0 104)`);
+    P.hd.setAttribute('transform', `translate(${R2(p.turn || 0)} ${R2(bob + hdDn + (p.nod || 0))}) rotate(${R2(p.lean || 0)} 0 -100)`);
+  };
+  /* solve one arm so its hand lands on a rig-space point (x,y): returns {a, k} for alA/alK (side -1) or arA/arK (side +1) */
+  P.reach = (side, tx, ty, crouch = 0) => {
+    const k = crouch, shDn = 104 * 0.3 * k + 62 * 0.35 * k, px = side * 30, py = -166 + shDn;
+    const dx = tx - px, dy = ty - py, len = Math.hypot(dx, dy);
+    const a = side < 0 ? Math.atan2(-dx, dy) / D2R : Math.atan2(dx, dy) / D2R;
+    return { a, k: clamp(len / 72, 0.45, 1.2) };
   };
   return P;
 }

@@ -19,6 +19,13 @@
   EVIDENCE: S8, the mullion appeared as a hard 130 px bar on the first frame of the move until the blur-in was added.
   GOES IN: references/motion-feel.md
 
+- RULE: When music hosts are blocked, arrange a public-domain piece on sampled instruments from npm (tonejs-instrument-*-mp3) and pick the tempo so one bar is a round number of frames (here 100 f); then cut every scene on a bar line.
+  EVIDENCE: revision 3's Gymnopédie at 54 BPM put all six cuts on bar lines with no retiming of the picture.
+  GOES IN: references/audio.md
+- RULE: A profile rig reads "lifting" better than a back view: bend from the hip with the shoulders riding the lean, drop the hips with bent knees, and aim the arms at the grip points every frame.
+  EVIDENCE: S3 from behind read as a man standing still; the same beat in profile read as a lift at thumbnail size.
+  GOES IN: references/motion-feel.md
+
 ## Skill feedback
 - GOT IN THE WAY: Original mode assumes ElevenLabs and an image model exist. FIX: add a no-credentials fallback (code-drawn art + numpy synth, as in tools/make_audio.py).
 - Tools written: tools/shot.cjs (stills), tools/make_audio.py (score + SFX placed by frame).

@@ -2,7 +2,7 @@
    the tan leather sofa, sun-grid on the pine floor). S8 (2025): Dad, a son and his wife on the lake deck at dusk; pull back
    through the window to the two schnauzer brothers and Ruby standing at the sill, looking down at them. */
 
-/* ============ S7 : f 1200..1400 ============ */
+/* ============ S7 : f 1000..1200 ============ */
 let S7; const initS7 = () => {
   S7 = (() => {
     const svg = $('sv7'), defs = svgEl('defs'); svg.appendChild(defs);
@@ -65,12 +65,9 @@ let S7; const initS7 = () => {
     // muntin shadows across the sofa
     const sh = svgEl('g', { opacity: 0.2 }); room.appendChild(sh);
     sh.innerHTML = [0, 1, 2, 3].map((i) => `<path fill="#3a2410" d="M${1080 + i * 220} 640 L${1110 + i * 220} 640 L${980 + i * 220} 980 L${950 + i * 220} 980Z"/>`).join('') + `<path fill="#3a2410" d="M1040 760 L1920 740 L1920 752 L1040 772Z"/>`;
-    // the room corner under the eaves sits in shade, which keeps the year and notes readable
-    ins(svg, `<rect x="0" y="0" width="1920" height="1080" fill="${radial(defs, [[0, '#1e0e04', 0.62], [0.55, '#1e0e04', 0.3], [1, '#1e0e04', 0]])}" transform="translate(330 230) scale(1.0 0.62) translate(-960 -540)" pointer-events="none"/>`);
     const act = svgEl('g'); cam.appendChild(act);
     const lud = makeDog(act, { kind: 'schnauzer', body: '#1c1c23', dark: '#111116', beard: '#8e929c', furn: '#6c707a', earFold: 1, collar: '#0e0e12' });
     const wolf = makeDog(act, { kind: 'schnauzer', body: '#1c1c23', dark: '#111116', beard: '#9a9ea8', furn: '#737782', earFold: 1, collar: '#2f7be0' });
-    const labs = ['Ludwig', 'Wolfgang'].map((n) => { const d = document.createElement('div'); d.className = 'lab'; d.textContent = n; $('names').appendChild(d); return d; });
     const camAt = (f) => { const k = E.inOutSine(seg(f, 0, 200)); return { fx: lerp(900, 1020, k), fy: lerp(600, 640, k), s: lerp(1.0, 1.1, k), rot: Math.sin(f * 0.02) * 0.2 }; };
     // zoomies: a loop on the floor in front of the sofa, then both jump up onto the cushions
     const om = (2 * Math.PI) / 84;
@@ -91,25 +88,19 @@ let S7; const initS7 = () => {
       const c = camAt(f);
       cam.setAttribute('transform', `translate(960 560) rotate(${c.rot}) scale(${c.s}) translate(${-c.fx} ${-c.fy})`);
       sun.setAttribute('opacity', R2(0.5 + 0.06 * Math.sin(f * 0.03)));
-      const W = dogAt(f, 0, WOLF_J, { x: 1460, y: 814 }), Lp = dogAt(f, -0.95, LUD_J, { x: 1290, y: 818 });
+      const W = dogAt(f, 0, WOLF_J, { x: 1460, y: 804 }), Lp = dogAt(f, -0.95, LUD_J, { x: 1290, y: 806 });
       const settleW = E.inOutSine(seg(f, WOLF_J + 18, WOLF_J + 40)), settleL = E.inOutSine(seg(f, LUD_J + 16, LUD_J + 40));
       const bow = (0.5 + 0.5 * Math.sin(f * 0.21)) * (f % 70 > 40 ? 1 : 0.2);
       wolf.set({ x: W.x, y: W.y, s: 1.35, flip: W.landed ? -1 : W.flip, gp: f * 0.8, amp: W.run ? 0.9 : 0, gallop: 1, bow: W.air ? 0 : bow * 0.5 * (1 - settleW), spin: W.air ? -14 * Math.sin(seg(f, WOLF_J, WOLF_J + 14) * Math.PI) : 0, sit: settleW, wag: f * 1.1, wagA: 24, head: -4 * settleW });
       lud.set({ x: Lp.x, y: Lp.y, s: 1.4, flip: Lp.landed ? -1 : Lp.flip, gp: f * 0.76 + 1, amp: Lp.run ? 0.9 : 0, gallop: 1, bow: Lp.air ? 0 : (1 - bow) * 0.5 * (1 - settleL), spin: Lp.air ? -14 * Math.sin(seg(f, LUD_J, LUD_J + 14) * Math.PI) : 0, lie: settleL, wag: f * 1.0, wagA: 22 * (1 - settleL * 0.7), head: 6 * settleL });
       ordr(act, lud, wolf, Lp.y, W.y);
-      [[labs[0], Lp, 38, -120], [labs[1], W, 64, 30]].forEach(([el, p, at, dxl], i) => {
-        const [sx, sy] = w2s(c, p.x, p.y - 150);
-        const a = E.inOutSine(seg(f, at, at + 20)) * (1 - E.inOutSine(seg(f, 176, 196)));
-        el.style.opacity = R2(a); el.style.left = R2(sx + dxl) + 'px'; el.style.top = R2(sy - 78 - (1 - a) * 8) + 'px'; el.style.transform = `rotate(${i ? 3 : -3}deg)`;
-        el.style.clipPath = `inset(-10px ${R2((1 - E.inOutSine(seg(f, at, at + 26))) * 100)}% -10px 0)`;
-      });
     }
     const fx = (ctx, f) => { motes(ctx, f, 60, 12, '#fff3cf', 2.2, 0.8); ctx.globalCompositeOperation = 'lighter'; rays(ctx, 1700, 120, f, 0.06, 'rgba(255,230,170,A)'); ctx.globalCompositeOperation = 'source-over'; };
-    return { a: 1200, b: 1400, update, fx, camAt };
+    return { a: 1000, b: 1200, update, fx, camAt };
   })();
 };
 
-/* ============ S8 : f 1400..1790 ============ */
+/* ============ S8 : f 1200..1700 ============ */
 let S8; const initS8 = () => {
   S8 = (() => {
     const svg = $('sv8'), defs = svgEl('defs'); svg.appendChild(defs);
@@ -191,8 +182,8 @@ let S8; const initS8 = () => {
     ins(inG, `<rect x="-400" y="-300" width="2800" height="1700" fill="${radial(defs, [[0, '#000', 0], [0.6, '#000', 0.05], [1, '#1a0c04', 0.5]])}" pointer-events="none"/>`);
     // ----- camera: close on the three at the rail -> pull back through the glass to the dogs at the sill -----
     const FOC = [740, 545];
-    const pull = (f) => E.inOutCubic(seg(f, 118, 262));
-    const camOut = (f) => { const k = pull(f); return { s: lerp(3.05, 1.0, k) * (1 + 0.02 * (1 - k) * E.inOutSine(seg(f, 0, 118))), fx: lerp(FOC[0], 960, k), fy: lerp(FOC[1], 540, k) }; };
+    const pull = (f) => E.inOutCubic(seg(f, 168, 322));
+    const camOut = (f) => { const k = pull(f); return { s: lerp(3.05, 1.0, k) * (1 + 0.03 * (1 - k) * E.inOutSine(seg(f, 0, 168))), fx: lerp(FOC[0], 960, k), fy: lerp(FOC[1], 540, k) }; };
     const camIn = (f) => { const k = pull(f); return { s: lerp(4.6, 1.0, k), fx: lerp(FOC[0] + 30, 960, k), fy: lerp(FOC[1] - 40, 540, k) }; };
     const camAt = camOut;
     function update(f) {
@@ -204,21 +195,21 @@ let S8; const initS8 = () => {
       // the three at the rail: dad leans on it, the son lifts his hands to his head, his wife turns to them
       const breathe = Math.sin(f * 0.07);
       dad.set({ x: 600, y: 590, s: 1.0, alA: -8, arA: -8, lean: -1 + breathe * 0.4, nod: Math.sin(f * 0.05) * 1.2 });
-      const hh = E.inOutSine(seg(f, 30, 60)) * (1 - E.inOutSine(seg(f, 220, 250)));
+      const hh = E.inOutSine(seg(f, 40, 72)) * (1 - E.inOutSine(seg(f, 280, 312)));
       son.set({ x: 760, y: 580, s: 1.02, alA: lerp(-6, 196, hh), arA: lerp(-6, 196, hh), lean: 0.6 * breathe });
-      const tn = E.inOutSine(seg(f, 70, 100));
+      const tn = E.inOutSine(seg(f, 96, 128));
       dil.set({ x: 940, y: 574, s: 0.95, alA: 18, arA: 26, turn: -5 * tn, lean: -2 * tn });
       // dogs rise up to the sill one after another (Ludwig, Wolfgang, then Ruby), heads tipped down at the deck
       const up = (t0) => spring(f - t0, 0.3, 0.55) * (f > t0 ? 1 : 0);
-      const u1 = up(170), u2 = up(186), u3 = up(204);
+      const u1 = up(222), u2 = up(240), u3 = up(260);
       ludB.set({ x: 520, y: 972, s: 1.36, up: clamp(u1, 0, 1.03), tilt: -3 + Math.sin(f * 0.05) * 2, bob: 6, wag: f * 0.5, wagA: 12, turn: 4 });
       wolfB.set({ x: 900, y: 978, s: 1.38, up: clamp(u2, 0, 1.03), tilt: 4 + Math.sin(f * 0.06 + 1) * 2, bob: 5, wag: f * 0.55 + 1, wagA: 14, turn: -2 });
-      ruby.set({ x: 1300, y: 982, s: 1.34, up: clamp(u3, 0, 1.03), tilt: -6 + 7 * E.inOutSine(seg(f, 280, 310)), bob: 4, wag: f * 0.45, wagA: 16, turn: -6 + 10 * E.inOutSine(seg(f, 280, 310)) });
+      ruby.set({ x: 1300, y: 982, s: 1.34, up: clamp(u3, 0, 1.03), tilt: -6 + 7 * E.inOutSine(seg(f, 360, 392)), bob: 4, wag: f * 0.45, wagA: 16, turn: -6 + 10 * E.inOutSine(seg(f, 360, 392)) });
     }
     const fx = (ctx, f) => {
       const k = pull(f);
       motes(ctx, f, Math.round(30 * k), 23, '#ffe8c8', 2, 0.5);
     };
-    return { a: 1400, b: 1790, update, fx, camAt };
+    return { a: 1200, b: 1700, update, fx, camAt };
   })();
 };

@@ -53,7 +53,7 @@ let S1; const initS1 = () => { S1 = (() => {
   ice.insertAdjacentHTML('beforeend', streaks + lumps);
   ice.insertAdjacentHTML('beforeend', `<ellipse cx="1420" cy="700" rx="380" ry="120" fill="${radial(defs, [[0, '#ffc79a', 0.42], [1, '#ffc79a', 0]])}"/>`);
   // cracks
-  const cracks = layer('cracks');
+  const cracks = layer('cracks'); cracks.style.display = 'none';
   const crackPts = (x0, y0, x1, y1, seed, n) => {
     const r = rng(seed); let d = `M${x0} ${y0}`;
     for (let i = 1; i <= n; i++) { const t = i / n; d += ` L${R2(lerp(x0, x1, t) + (r() - 0.5) * 26 * (1 - t * 0.4))} ${R2(lerp(y0, y1, t) + (r() - 0.5) * 8)}`; }
@@ -89,7 +89,7 @@ let S1; const initS1 = () => { S1 = (() => {
   fg.insertAdjacentHTML('beforeend', `<path d="${ridgePath(fgFn, 61, -900, 2900, 20, 2)}" fill="#dfe6f6" opacity=".0"/>`);
 
   const dep = { sky: 0.02, far: 0.12, mid: 0.28, cot: 0.28, ice: 0.8, cracks: 1, act: 1, fg: 1.5 };
-  const T = (f) => kf(f, [[0, 0], [118, 118], [138, 126], [158, 127], [188, 146], [300, 258]], E.inOutSine);
+  const T = (f) => f * 0.86; // one unbroken walk across the ice
   const lead = (f) => 470 + 3.9 * T(f);
   function camAt(f) {
     const fx = 1000 + 2.5 * T(f), s = lerp(1.0, 1.16, E.inOutSine(f / 300));
@@ -100,7 +100,7 @@ let S1; const initS1 = () => { S1 = (() => {
     cam.setAttribute('transform', `translate(960 560) scale(${c.s}) translate(${-c.fx} ${-c.fy})`);
     for (const n in dep) { if (n === 'act' || n === 'cracks') continue; L[n].setAttribute('transform', `translate(${R2((1 - dep[n]) * (c.fx - 1000))} 0)`); }
     const t = T(f), lx = lead(f);
-    const pause = E.smoother(seg(f, 116, 128)) * (1 - E.smoother(seg(f, 160, 176)));
+    const pause = 0;
     const wal = (k) => (t * 2 * Math.PI) / 30 + k;
     const amp = 0.6 * (1 - pause);
     const yb = 850;
@@ -125,7 +125,6 @@ let S1; const initS1 = () => { S1 = (() => {
     const hX = lx + 360 + Math.sin(f * 0.023 + 1.3) * 90 + 60 * pause;
     shih.set({ x: hX, y: yb + 30, s: 1.0, flip: 1, gp: dgb(1.7), amp: 0.85 * (1 - pause * 0.9), head: 0, wag: f * 0.4, wagA: 10 });
     // cracks propagate
-    ckEls.forEach((e) => { const i = +e.dataset.i, st = CR[i][6]; e.setAttribute('stroke-dashoffset', R2(1 - E.outExpo(seg(f, st, st + 12)))); });
     // window glow: lights come on
     const lit = E.inOutSine(seg(f, 175, 235)), fl = 0.9 + 0.1 * Math.sin(f * 0.7);
     $('cwg').setAttribute('opacity', R2(0.35 + lit * 0.65 * fl));
