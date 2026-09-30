@@ -119,8 +119,8 @@ let S2; const initS2 = () => {
     ins(wall, wl);
     // ---- the dogs ----
     const act = svgEl('g'); cam.appendChild(act);
-    const whiteD = makeDog(act, { kind: 'schnauzer', body: '#dcdcd7', dark: '#b8b8b2', beard: '#f7f7f4', furn: '#eeeeea', earFold: 1 });
-    const greyD = makeDog(act, { kind: 'shihpoo', body: '#b1afaa', dark: '#8d8b86', old: 0.25, collar: '#d0243a' });
+    const whiteD = makeDog(act, { kind: 'schnauzer', body: '#b0b4bb', dark: '#90949c', beard: '#f4f5f7', old: 1, legLen: 0.9 });  // the same old schnauzer as in the mowing scene
+    const greyD = makeDog(act, { kind: 'schnauzer', body: '#6e727c', dark: '#575b64', beard: '#c8cbd1', legLen: 1.2 });  // and the same gangly puppy
     // ---- the carved bear on its stump, big in the left foreground ----
     const bear = svgEl('g'); cam.appendChild(bear);
     const BK = '#17161a', BH = '#2a292e';

@@ -59,6 +59,8 @@ function draw(t) {
   fl += kf(f, [[290, 0], [299, 0.95], [303, 0.95], [322, 0]], E.inOutSine);
   fl += kf(f, [[692, 0], [699, 0.75], [703, 0.75], [716, 0]], E.inOutSine);
   // through the glass: out of the room, turned around to face the dogs from the deck
+  // the stairs hand over to the dusk deck under a soft warm wash, so the two drawings of the deck never show as a jump
+  fl += kf(f, [[1680, 0], [1693, 0.8], [1700, 0.8], [1716, 0]], E.inOutSine);
   fl += kf(f, [[2090, 0], [2099, 0.85], [2102, 0.85], [2122, 0]], E.inOutSine);
   lk += kf(f, [[496, 0], [512, 0.55], [540, 0]], E.inOutSine) + kf(f, [[690, 0], [699, 1], [704, 1], [728, 0]], E.inOutSine) + kf(f, [[1392, 0], [1401, 0.85], [1408, 0.6], [1436, 0]], E.inOutSine);
   const dark = kf(f, [[992, 0], [999, 1], [1003, 1], [1014, 0]], E.inOutSine);

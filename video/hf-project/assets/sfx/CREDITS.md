@@ -22,7 +22,7 @@ note, a little vibrato and breath, then air absorption and a long echo off the w
 | `lugaru_Land.ogg`, `lugaru_Thud.ogg` | the dogs landing on the sofa, the SOLD plank | lugaru-data | Wolfire Games | CC BY-SA 3.0 |
 | `wesnoth_ship.ogg` | wood and water under the dock | wesnoth-1.16-data | The Battle for Wesnoth project | GPL-2+ |
 | `wesnoth_gold.ogg` | collar tags (short slices of a coin jingle) | wesnoth-1.16-data | The Battle for Wesnoth project | GPL-2+ |
-| `lincity_ParklandLake1-2.wav` | lake lapping | lincity-ng-data | the LinCity-NG project | GPL-2+ |
+| (synthesized) | water lapping on rock under the last scenes, made in `tools/make_audio.py` from filtered noise; no recording | - | - | - |
 | `crossfire_Tear.wav` | the paper tear between the deck and the dock | crossfire-client | the Crossfire Development Team | GPL-2+ |
 | `megaglest_bee1-4.wav` | the bees chasing the woman in green across the back of the farm lawn | megaglest-data (megapack, Indian faction beehive) | Titus Tscharntke and Philipp Tscharntke | CC BY-SA 3.0 |
 | `tuxpaint_rain.ogg` | the rain passing over the deck | tuxpaint-plugins-default | Bill Kendrick and the Tux Paint contributors | GPL-2+ |

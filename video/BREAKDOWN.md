@@ -1,7 +1,7 @@
 # BREAKDOWN — "Growing up, together." (Kahshe Lake family film)
 
 **Mode:** Original (no reference video). **Category:** `editorial-collage` (paper-cut diorama, half stills-in-code, half characters in motion). The skill's `liquid-glass-ui` look was ruled out. Nothing here is a UI showcase.
-**Spec:** 1920x1080, 30 fps, 2400 frames (80 s), stereo audio. **Beat grid:** one 3/4 bar = 100 f. Every cut lands on a bar line.
+**Spec:** 1920x1080, 30 fps, 2600 frames (86.7 s), stereo audio. **Beat grid:** one 3/4 bar = 100 f. Every cut lands on a bar line.
 
 ## Donor numbers used (from the skill's corpus, not copied shots)
 - Cut rhythm: hold 6–10 s on a story beat, one 3–4 s "hush" beat (SOLD) — slower than a SaaS launch on purpose. Long tail settles: 30–45 f, no lockstep starts.
@@ -52,3 +52,7 @@ One 3/4 bar = 100 frames (54 BPM). Cuts at f300/500/700/900/1000/1200/1500/1900,
 
 ## Sound
 **Score** (`tools/make_score.py`): an arrangement of Satie's Gymnopédie No. 1 (public domain) on sampled felt piano, with a bowed cello under the bass from bar 4 and a violin holding the long note and doubling the second phrase. Soft plate reverb. **Sound design** (`tools/make_audio.py`, recorded sounds from `assets/sfx/`, credits in `assets/sfx/CREDITS.md`, placed from the composition's frames): snow footsteps from the walk clock and the dog's paws on the crust under the wind (S1), paws on deck boards from each dog's gallop phase and distance, the collar's tags, the lake and a loon far off (S2), the paper tear, a real door creak slowed down for the ramp hinge, the knock as it stands, drips into the lake (S3), two synthesized mowers panned across S4 and the bee swarm following the woman in green, the SOLD plank and chain (S5), claws on pine, two sofa landings and a faint loon outside (S7), the rain thinning, drips off the eave and the cat's chin, a loon as the cat looks out, steps on the wet stairs, and the lake coming up as the camera goes down (S7b), lapping, crickets, two loons answering each other and paws on the sill (S8), then crickets, lapping, loons out on the water, the hull, the paddle going in and dripping (S9).
+
+
+## Revisions 6 and 7 (2026-09-30)
+Rev 6: the lake recordings and synthesized loons (heard as ducks and pigeons) are out; the family chose the replacements by listening: soft wind alone at 11–24 s, wind with soft water from 42 s to the end, and no extra sound on the sale sign. New aerial scene S6 (f1000–1200) after the sale, built from the drone photos; White Pines plank on the sign; Dad's hair; a couple seated in the Muskoka chairs. Rev 7: the deck dogs at 14 s are the two S4 dogs, the lawn dog stands (legs were hidden), the sign also stands left of the house at 24–29 s, the aerial house lies east–west, the seated man is blonde, the kayaker is the woman from the opening, and the stairs-to-dusk hand-over (f1680–1716) runs under a warm wash so the two drawings of the deck never show as a jump. Timeline now: cuts at f0/300/500/700/900/1000/1200/1400/1700/2100/2600.

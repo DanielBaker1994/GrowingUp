@@ -115,7 +115,7 @@ def windbed(dur, seed): return rms_norm(loop(WIND, dur, seed, 1.0), 0.1)
 def cricketbed(dur, seed): return rms_norm(loop(CRICKETS, dur, seed, 0.5), 0.1)
 # What sits under the lake scenes. The LinCity lake recordings and the synthesized loons were heard as ducks and pigeons and
 # are out. AMBIENT picks the replacement (none | wind | windlap | dusk); SIGN picks the extra sound on the sale sign.
-AMB = os.environ.get('AMBIENT', 'none'); SIGN = os.environ.get('SIGN', 'none')
+AMB1 = os.environ.get('AMBIENT', 'wind'); AMB2 = os.environ.get('AMBIENT_END', 'windlap'); SIGN = os.environ.get('SIGN', 'none')  # AMB1: up to the sale sign (11-24 s), AMB2: 42 s to the end
 def lapbed(dur, seed):
     """water lapping at rock: band-passed noise under a slow swell, with small laps; all synthesized, no animal in it"""
     r = np.random.default_rng(seed); n = int(dur * SR); t = np.arange(n) / SR
@@ -126,6 +126,7 @@ def lapbed(dur, seed):
     return rms_norm(x, 0.1)
 def ambient(f0, f1, seed, lvl=1.0, crickets=None, fin=1.5, fout=1.0):
     d = (f1 - f0) / FPS + 0.5
+    AMB = AMB2 if f0 >= 1000 else AMB1
     if AMB in ('wind', 'windlap', 'dusk'): bed(windbed(d, seed), f0, f1, 0.17 * lvl, -0.2, fin, fout)
     if AMB in ('windlap', 'dusk'): bed(lapbed(d, seed + 1), f0, f1, 0.4 * lvl, 0.15, fin, fout)
     if AMB == 'dusk' and crickets is not None: bed((lambda c: c * (np.interp(np.linspace(0, 1, len(c)), np.linspace(0, 1, len(crickets)), crickets) if np.ndim(crickets) else crickets))(cricketbed(d, seed + 2)), f0, f1, 0.16 * lvl, 0.2, fin, fout)

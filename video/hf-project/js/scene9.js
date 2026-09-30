@@ -222,7 +222,7 @@ let S9; const initS9 = () => {
     bb(3.9, [[0.3, '#4f9a5a'], [1.2, '#3b78b8'], [2.1, '#6b4a36'], [3.0, '#b8302c']].map(([x, col]) => `<g transform="translate(${cm(x)} ${cmy(SHELF)}) scale(0.9)">${muskokaSVG(col)}</g>`).join(''));
     bb(4.75, `<g transform="translate(${cm(3.9)} ${cmy(SHELF)})">${inukshukSVG()}</g>`);
     // a man and a woman sitting together in the blue and brown chairs, looking out at the lake (us)
-    bb(3.85, `<g transform="translate(${cm(1.2)} ${cmy(SHELF)}) scale(0.9)">${sitterSVG({ top: '#7a8f4e', pants: '#3b4150', hair: '#4a3a2e', lean: 4 })}</g><g transform="translate(${cm(2.1)} ${cmy(SHELF)}) scale(0.9)">${sitterSVG({ top: '#e9e4d6', pants: '#44505f', hair: '#7a5a3c', long: true, lean: -4, skin: '#e6bf9c' })}</g>`);
+    bb(3.85, `<g transform="translate(${cm(1.2)} ${cmy(SHELF)}) scale(0.9)">${sitterSVG({ top: '#7a8f4e', pants: '#3b4150', hair: '#d9b45a', lean: 4 })}</g><g transform="translate(${cm(2.1)} ${cmy(SHELF)}) scale(0.9)">${sitterSVG({ top: '#e9e4d6', pants: '#44505f', hair: '#7a5a3c', long: true, lean: -4, skin: '#e6bf9c' })}</g>`);
     bb(5.0, rk);
     const stairsG = plane();
     // ============ the lake deck ============
@@ -267,9 +267,9 @@ let S9; const initS9 = () => {
     const kd = bb(KZ);
     const paddle = svgEl('g'); kd.g.appendChild(paddle);
     paddle.innerHTML = `<rect x="-110" y="-2.2" width="220" height="4.4" rx="2.2" fill="#2c2c30"/><path fill="#d8d3c8" d="M-138 -10 Q-114 -12 -106 -4 L-106 4 Q-114 12 -138 10Z"/><path fill="#d8d3c8" d="M138 -10 Q114 -12 106 -4 L106 4 Q114 12 138 10Z"/>`;
-    const kdad = makePersonBack(kd.g, { top: '#d0553f', shorts: '#2b3345', skin: '#e6bf9c', hair: '#8e8a90', pony: true, hat: '#f2ead6', shoe: '#f0eee8' });
+    const kdad = makePersonBack(kd.g, { top: '#2f5d4a', shorts: '#2b3345', skin: '#e6bf9c', hair: '#4a3323', pony: true, hat: '#b83a2c', shoe: '#f0eee8' });
     const pfd = svgEl('g'); kd.g.appendChild(pfd);
-    pfd.innerHTML = `<path fill="#3d5a44" d="M-25 -170 Q0 -178 25 -170 L26 -112 Q0 -106 -26 -112Z"/><path fill="#2f4836" d="M-26 -126 Q0 -120 26 -126 L26 -112 Q0 -106 -26 -112Z"/><rect x="-18" y="-160" width="36" height="3" fill="#c9c3b3" opacity=".7"/><rect x="-18" y="-140" width="36" height="3" fill="#c9c3b3" opacity=".7"/>`;
+    pfd.innerHTML = `<path fill="#e0a43a" d="M-25 -170 Q0 -178 25 -170 L26 -112 Q0 -106 -26 -112Z"/><path fill="#c48828" d="M-26 -126 Q0 -120 26 -126 L26 -112 Q0 -106 -26 -112Z"/><rect x="-18" y="-160" width="36" height="3" fill="#c9c3b3" opacity=".7"/><rect x="-18" y="-140" width="36" height="3" fill="#c9c3b3" opacity=".7"/>`;
     const kayakNear = plane();
     const ripG = plane();
 

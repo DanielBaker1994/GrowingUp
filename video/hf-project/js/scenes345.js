@@ -43,7 +43,12 @@ let S4; const initS4 = () => {
     const driveSvg = gravelDrive(defs, DL, DR, { speck: 70, seed: 314 });
     dw += driveSvg + yardPine(520, 626, 400, 3304) + yardPine(700, 640, 430, 3305) + yardPine(930, 646, 390, 3307);
     farm.innerHTML = wl + dw + `<g transform="translate(1420 668) scale(0.62)">${gambrelHouse({ detail: 1 })}</g>` +
-      `<g transform="translate(1100 664)"><path d="${blob(0, -60, 60, 70, 313, 18, 0.15)}" fill="#6a9a3c"/><path d="${blob(20, -30, 50, 40, 316, 18, 0.2)}" fill="#8aa84a"/></g>`;
+      `<g transform="translate(1100 664)"><path d="${blob(0, -60, 60, 70, 313, 18, 0.15)}" fill="#6a9a3c"/><path d="${blob(20, -30, 50, 40, 316, 18, 0.2)}" fill="#8aa84a"/></g>` +
+      // the family's sign stands on the lawn to the left of the house: White Pines plank over the agent's FOR SALE board
+      `<g transform="translate(985 726) scale(0.3) translate(-330 -1006)"><ellipse cx="330" cy="1006" rx="90" ry="10" fill="#000" opacity=".3"/><rect x="318" y="466" width="24" height="544" fill="#8a6a48"/><rect x="318" y="600" width="270" height="18" fill="#8a6a48"/><rect x="318" y="466" width="330" height="16" fill="#8a6a48"/>` +
+      `<path fill="#6f3a1e" d="M336 542 Q336 506 372 506 L588 506 Q624 506 624 542 Q624 566 596 574 Q560 580 540 590 Q506 602 480 588 Q454 602 420 590 Q400 580 364 574 Q336 566 336 542Z"/><path fill="none" stroke="#c98a4a" stroke-width="3" d="M346 542 Q346 516 374 516 L586 516 Q614 516 614 542 Q614 560 592 565 Q556 570 538 580 Q506 592 480 580 Q454 592 422 580 Q404 570 368 565 Q346 560 346 542Z"/>` +
+      `<path id="s4arc" fill="none" d="M352 554 Q480 528 608 554"/><text font-family="Fraunces" font-weight="700" font-size="27" fill="#e8bd70" letter-spacing="2.5" text-anchor="middle"><textPath href="#s4arc" startOffset="50%">WHITE PINES</textPath></text>` +
+      `<rect x="360" y="616" width="240" height="180" fill="#fdfaf2" stroke="#2f5a3a" stroke-width="9"/><text x="480" y="672" text-anchor="middle" font-family="Fraunces" font-size="34" fill="#2f5a3a" letter-spacing="3">FOR</text><text x="480" y="742" text-anchor="middle" font-family="Fraunces" font-size="66" fill="#b8402f" letter-spacing="2">SALE</text></g>`;
     layer('fence');
     // lawn with stripes (rows revealed by mowers)
     const lawn = layer('lawn');
@@ -132,7 +137,7 @@ let S4; const initS4 = () => {
       });
       // dogs
       const br = Math.sin(f * 0.14) * 0.5 + 0.5, lift = E.inOutSine(seg(f, 60, 80)) * (1 - E.inOutSine(seg(f, 140, 158)));
-      oldd.set({ x: 440, y: 878, s: 1.45, flip: 1, lie: 1, head: -2 + lift * -6 + br * 2, wag: f * 0.2, wagA: 5 * lift, gallop: 0 });
+      oldd.set({ x: 440, y: 878, s: 1.45, flip: 1, stand: 1, head: -2 + lift * -6 + br * 2, wag: f * 0.2, wagA: 5 * lift, gallop: 0 });
       const pth = f * 0.07, px = 1000 + 420 * Math.sin(pth), py = 860 + 55 * Math.sin(pth * 2 + 1);
       pup.set({ x: px, y: py, s: depthS(py + 40) * 1.45, flip: Math.cos(pth) >= 0 ? 1 : -1, gp: f * 0.62, amp: 0.5 + 0.5 * Math.abs(Math.cos(pth)), gallop: 1, wag: f * 0.9, wagA: 24, bow: 0.4 * Math.max(0, Math.sin(f * 0.11)) });
       ordr(act, oldd, pup, 878, py);

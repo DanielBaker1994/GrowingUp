@@ -71,7 +71,8 @@ let S6; const initS6 = () => {
       `<circle cx="300" cy="690" r="40" fill="#8c8a84"/><circle cx="300" cy="690" r="31" fill="#4d8a3a"/><path fill="#3f7a30" d="${blob(300, 690, 26, 24, 6510, 12, 0.3)}"/><circle cx="300" cy="688" r="9" fill="#7b5d3d"/><circle cx="300" cy="688" r="5" fill="#9a7a52"/>` +
       `<g transform="translate(655 965)"><rect x="6" y="8" width="62" height="42" fill="#000" opacity=".25"/><rect x="0" y="0" width="62" height="42" fill="#2b2826"/><rect x="0" y="0" width="62" height="8" fill="#443e39"/></g>`);
     // the little cabin up at the left: rusty roof, a deck with two red chairs, steps
-    ins(C, `<rect x="104" y="124" width="150" height="116" fill="#000" opacity=".22" transform="translate(14 12)"/>` +
+    const CAB = svgEl('g', { transform: 'translate(-50 -20)' }); C.appendChild(CAB);
+    ins(CAB, `<rect x="104" y="124" width="150" height="116" fill="#000" opacity=".22" transform="translate(14 12)"/>` +
       `<rect x="100" y="250" width="160" height="62" fill="#d0ab72"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<rect x="${108 + i * 20}" y="250" width="2" height="62" fill="#a8844f" opacity=".6"/>`).join('') +
       `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M96 252 L96 316 L264 316 L264 252"/>` +
       `<rect x="250" y="288" width="48" height="36" fill="#d0ab72"/><rect x="250" y="288" width="48" height="6" fill="#a8844f" opacity=".6"/>` +
@@ -79,14 +80,17 @@ let S6; const initS6 = () => {
       `<rect x="100" y="240" width="156" height="14" fill="#9c7a4c"/><rect x="132" y="216" width="78" height="26" fill="#b98955"/><rect x="152" y="220" width="22" height="30" fill="#f2ede2"/><path fill="#c0352c" d="M176 226 l8 0 l0 12 l-8 0Z"/>` +
       `<path fill="#7a5a44" d="M96 132 L256 132 L252 242 L100 242Z"/><path fill="#8c6a52" d="M96 132 L176 132 L176 242 L100 242Z"/><rect x="172" y="132" width="8" height="110" fill="#5f4433"/><rect x="130" y="108" width="16" height="30" fill="#2e2a28"/>` + [0, 1, 2, 3, 4, 5].map((i) => `<rect x="98" y="${146 + i * 15}" width="156" height="1.5" fill="#000" opacity=".16"/>`).join(''));
     // the house from above: shadow, wall at the front, the gambrel roof, dormers, skylights
-    ins(C, `<path fill="#1d3318" opacity=".3" d="M352 186 L610 186 L662 290 L662 580 L352 580Z"/>`);
-    ins(C, `<rect x="338" y="520" width="264" height="58" fill="#bdb196"/><rect x="338" y="570" width="264" height="8" fill="#e6e0cf"/>` + [372, 459, 546].map((x) => `<rect x="${x}" y="536" width="26" height="28" fill="#e9efef"/><rect x="${x + 2}" y="538" width="22" height="24" fill="#8ea5b5"/><rect x="${x + 12}" y="538" width="2" height="24" fill="#e9efef"/>`).join(''));
-    ins(C, `<rect x="250" y="418" width="96" height="130" fill="#d1ad78"/>` + [0, 1, 2, 3, 4].map((i) => `<rect x="${262 + i * 18}" y="418" width="2" height="130" fill="#a8844f" opacity=".6"/>`).join('') + `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M346 418 L250 418 L250 548 L346 548"/><circle cx="288" cy="480" r="12" fill="#ece8de"/><circle cx="288" cy="480" r="12" fill="none" stroke="#8a6a48" stroke-width="2"/>` +
+    // the long axis runs east-west: the whole house group is turned a quarter turn, its shadow drawn after the turn
+    ins(C, `<path fill="#1d3318" opacity=".3" d="M250 228 L650 228 L694 270 L694 500 L250 500Z"/>`);
+    const HG = svgEl('g', { transform: 'rotate(90 470 352)' }); C.appendChild(HG);
+    ins(HG, `<rect x="338" y="520" width="264" height="58" fill="#bdb196"/><rect x="338" y="570" width="264" height="8" fill="#e6e0cf"/>` + [372, 459, 546].map((x) => `<rect x="${x}" y="536" width="26" height="28" fill="#e9efef"/><rect x="${x + 2}" y="538" width="22" height="24" fill="#8ea5b5"/><rect x="${x + 12}" y="538" width="2" height="24" fill="#e9efef"/>`).join(''));
+    ins(HG, `<rect x="250" y="418" width="96" height="130" fill="#d1ad78"/>` + [0, 1, 2, 3, 4].map((i) => `<rect x="${262 + i * 18}" y="418" width="2" height="130" fill="#a8844f" opacity=".6"/>`).join('') + `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M346 418 L250 418 L250 548 L346 548"/><circle cx="288" cy="480" r="12" fill="#ece8de"/><circle cx="288" cy="480" r="12" fill="none" stroke="#8a6a48" stroke-width="2"/>` +
       `<g transform="translate(270 506)"><rect x="-8" y="-7" width="16" height="14" rx="3" fill="#c0352c"/></g>`);
-    ins(C, `<rect x="598" y="330" width="56" height="170" fill="#cfab76"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<rect x="598" y="${338 + i * 20}" width="56" height="2" fill="#a8844f" opacity=".6"/>`).join('') + `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M600 330 L654 330 L654 500"/>` +
-      `<path fill="#c9a673" d="M612 500 L664 500 L800 820 L740 836Z"/>` + Array.from({ length: 22 }, (_, i) => { const t = i / 22; return `<line x1="${R2(lerp(612, 740, t))}" y1="${R2(lerp(500, 836, t))}" x2="${R2(lerp(664, 800, t))}" y2="${R2(lerp(500, 820, t))}" stroke="#9c7a4c" stroke-width="2" opacity=".6"/>`; }).join('') + `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M612 500 L740 836"/>`);
+    ins(HG, `<rect x="598" y="330" width="56" height="170" fill="#cfab76"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<rect x="598" y="${338 + i * 20}" width="56" height="2" fill="#a8844f" opacity=".6"/>`).join('') + `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M600 330 L654 330 L654 500"/>`);
+    // the boardwalk from the turned deck down to the drive
+    ins(C, `<path fill="#c9a673" d="M498 482 L520 482 L742 664 L706 704 L498 538Z"/>` + Array.from({ length: 18 }, (_, i) => { const t = i / 18; return `<line x1="${R2(lerp(498, 706, t))}" y1="${R2(lerp(538, 704, t))}" x2="${R2(lerp(520, 742, t))}" y2="${R2(lerp(482, 664, t))}" stroke="#9c7a4c" stroke-width="2" opacity=".6"/>`; }).join('') + `<path fill="none" stroke="#8a6a48" stroke-width="4" d="M498 538 L706 704"/>`);
     // the roof
-    ins(C, `<path fill="#4d535e" d="M352 180 L470 172 L470 526 L338 526Z"/><path fill="#5b626e" d="M470 172 L590 180 L602 526 L470 526Z"/>` +
+    ins(HG, `<path fill="#4d535e" d="M352 180 L470 172 L470 526 L338 526Z"/><path fill="#5b626e" d="M470 172 L590 180 L602 526 L470 526Z"/>` +
       `<path fill="none" stroke="#3c414b" stroke-width="3" d="M397 178 L390 526 M545 178 L552 526"/><path fill="none" stroke="#7a818d" stroke-width="3" d="M470 172 L470 526"/>` +
       Array.from({ length: 24 }, (_, i) => `<line x1="340" x2="602" y1="${186 + i * 14.4}" y2="${186 + i * 14.4}" stroke="#000" stroke-width="1" opacity=".14"/>`).join('') +
       [236, 338, 440].map((y) => `<path fill="#636a76" d="M546 ${y} L612 ${y + 10} L612 ${y + 52} L546 ${y + 62}Z"/><path fill="#4f5560" d="M546 ${y + 31} L612 ${y + 31}" stroke="#3c414b" stroke-width="3"/>`).join('') +
