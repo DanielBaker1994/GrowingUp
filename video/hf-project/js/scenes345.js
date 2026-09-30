@@ -10,134 +10,6 @@ const leafFall = (ctx, f, n, seed, cols, sz) => {
   }
 };
 
-/* ============ S3 : f 500..700 ============ */
-let S3; const initS3 = () => {
-  S3 = (() => {
-    const svg = $('sv3'), defs = svgEl('defs'); svg.appendChild(defs);
-    const cam = svgEl('g'); svg.appendChild(cam);
-    const L = {}; const layer = (n, h = '') => { const g = svgEl('g', {}, h); cam.appendChild(g); L[n] = g; return g; };
-    const ins = (g, h) => g.insertAdjacentHTML('beforeend', h);
-    const sky = layer('sky', `<rect x="-800" y="-500" width="3600" height="1100" fill="${grad(defs, [[0, '#8fb0cc'], [0.55, '#e4dccb'], [1, '#f8d9a6']])}"/>`);
-    ins(sky, `<ellipse cx="420" cy="470" rx="1000" ry="540" fill="${radial(defs, [[0, '#fff0c8', 0.95], [0.35, '#ffd9a0', 0.4], [1, '#ffd9a0', 0]])}"/><circle cx="420" cy="470" r="48" fill="#fff8e0"/>`);
-    ins(sky, `<path d="${blob(1300, 190, 240, 22, 4, 18, 0.15)}" fill="#fff" opacity=".5"/><path d="${blob(700, 120, 300, 20, 6, 18, 0.15)}" fill="#fff" opacity=".4"/>`);
-    // autumn far hills, two rows
-    const hills = (n, y, amp, seed, mistK, sz) => {
-      const g = layer(n), fn = ridgeFn(seed, y, amp), r = rng(seed + 3);
-      ins(g, `<path d="${ridgePath(fn, seed)}" fill="${mix('#5f7a72', '#e9dcc4', mistK)}"/>`);
-      let b = '';
-      for (let x = -200; x < 2200; x += sz * 0.55) { const c = AUT[Math.floor(r() * AUT.length)]; b += `<path d="${blob(x, fn(x) - 6 + (r() - 0.5) * 10, sz * (0.7 + r() * 0.6), sz * (0.55 + r() * 0.4), Math.floor(r() * 1e5), 16, 0.16)}" fill="${mix(c, '#e9dcc4', mistK)}"/>`; }
-      ins(g, b); return g;
-    };
-    hills('h1', 452, 30, 201, 0.5, 46); hills('h2', 478, 22, 211, 0.28, 62);
-    const lake = layer('lake');
-    ins(lake, `<rect x="-900" y="486" width="3800" height="380" fill="${grad(defs, [[0, '#f0dcb2'], [0.15, '#a9c0cc'], [1, '#4c7590']])}"/>`);
-    // reflections of the foliage
-    const rr = rng(222); let refl = '';
-    for (let i = 0; i < 70; i++) { const x = rr() * 2400 - 200, w = 14 + rr() * 60, c = AUT[Math.floor(rr() * AUT.length)]; refl += `<rect class="rf" x="${R2(x)}" y="${R2(492 + rr() * 30)}" width="${R2(w)}" height="${R2(10 + rr() * 60)}" rx="3" fill="${c}" opacity="${R2(0.10 + rr() * 0.14)}" data-p="${R2(rr() * 6)}"/>`; }
-    ins(lake, refl);
-    let rip = ''; for (let i = 0; i < 40; i++) { const t = Math.pow(rr(), 1.2), y = 500 + t * 340; rip += `<rect class="rp" x="${R2(rr() * 2400 - 200)}" y="${R2(y)}" width="${R2(30 + t * 120)}" height="${R2(1.4 + t * 1.6)}" rx="1" fill="#ffffff" opacity="${R2(0.1 + rr() * 0.22)}" data-p="${R2(rr() * 6)}"/>`; }
-    ins(lake, rip);
-    const rfs = [...lake.querySelectorAll('.rf')], rps = [...lake.querySelectorAll('.rp')];
-    // distant shore pines left
-    const mid = layer('mid'); const mFn = ridgeFn(231, 560, 16);
-    ins(mid, `<path d="${forest(mFn, -300, 760, 30, 70, 160, 232, 4)}" fill="#3a5a48"/><path d="${ridgePath(mFn, 231, -300, 760, 12, 1.4, 640)}" fill="#33503f"/>`);
-    // granite shield rock (near)
-    const rock = layer('rock');
-    const rockTop = (x) => 812 + Math.sin(x * 0.006) * 8 + (x > 1500 ? Math.pow((x - 1500) / 200, 1.7) * 60 : 0);
-    let rd = `M-300 1200`; for (let x = -300; x <= 1800; x += 14) rd += ` L${x} ${R2(rockTop(x))}`; rd += ` L1800 1200Z`;
-    ins(rock, `<path d="${rd}" fill="${grad(defs, [[0, '#c9a99c'], [0.5, '#a88c85'], [1, '#6f5b5c']])}"/>`);
-    const rk = rng(241); let cr = '';
-    for (let i = 0; i < 14; i++) { const x = rk() * 1500 - 200, y = 840 + rk() * 220; cr += `<path d="M${R2(x)} ${R2(y)} l${R2(60 + rk() * 120)} ${R2((rk() - 0.5) * 30)} l${R2(30 + rk() * 60)} ${R2((rk() - 0.3) * 30)}" stroke="#5a4646" stroke-width="${R2(1.5 + rk() * 2)}" fill="none" opacity=".45" stroke-linecap="round"/>`; }
-    for (let i = 0; i < 40; i++) { cr += `<circle cx="${R2(rk() * 1700 - 200)}" cy="${R2(830 + rk() * 300)}" r="${R2(2 + rk() * 6)}" fill="${rk() > 0.5 ? '#cfd88a' : '#e4a94a'}" opacity=".5"/>`; }
-    ins(rock, cr);
-    // moss + fall grass on the rock edge
-    ins(rock, `<path d="${blob(160, 830, 200, 12, 5, 16, 0.2)}" fill="#6d7f3f" opacity=".5"/>`);
-    // water in front of the rock (right)
-    const wat = layer('wat');
-    ins(wat, `<path d="M1180 ${R2(rockTop(1180) - 4)} Q1320 ${R2(rockTop(1320) - 6)} 1560 ${R2(rockTop(1560))} L2300 830 L2300 1200 L1560 1200Z" fill="#000" opacity="0"/>`);
-    ins(wat, `<rect x="1780" y="812" width="700" height="400" fill="${grad(defs, [[0, '#5d8299', 0.92], [1, '#2d4f68', 0.98]])}"/>`);
-    // dock (on top of water, cribs submerged by wat-front layer)
-    const dockG = layer('dock');
-    const dockLocal = svgEl('g'); dockG.appendChild(dockLocal);
-    let planks = ''; for (let x = 14; x < 700; x += 33) planks += `<line x1="${x}" x2="${x}" y1="0" y2="26" stroke="#5a4028" stroke-width="2.4" opacity=".7"/>`;
-    dockLocal.innerHTML =
-      `<rect x="80" y="26" width="16" height="130" fill="#5a4331"/><rect x="590" y="26" width="16" height="130" fill="#5a4331"/><rect x="88" y="70" width="510" height="10" fill="#4a3728"/><rect x="88" y="124" width="510" height="8" fill="#4a3728"/>` +
-      `<rect x="0" y="0" width="700" height="26" fill="#a5784c"/>${planks}<rect x="0" y="26" width="700" height="14" fill="#7a5638"/><rect x="0" y="0" width="700" height="4" fill="#c9985f"/>` +
-      // lifting bars
-      `<rect x="-150" y="8" width="160" height="12" rx="3" fill="#b38a55"/><rect x="-150" y="8" width="160" height="4" fill="#d1a86f"/>`;
-    // front water (foreground) to submerge cribs, drawn after dock
-    const wfront = layer('wfront');
-    ins(wfront, `<rect x="1560" y="806" width="900" height="420" fill="${grad(defs, [[0, '#6d93aa', 0.6], [0.02, '#5f88a0', 0.86], [1, '#2d4f68', 0.98]])}"/>`);
-    ins(wfront, `<path d="M1120 ${R2(rockTop(1120) - 0)} L1300 ${R2(rockTop(1300))} L1560 ${R2(rockTop(1560))} L1560 1200 L1120 1200Z" fill="#000" opacity="0"/>`);
-    // actors
-    const act = layer('act');
-    const dad = makePerson(act, { coat: '#2f5d4a', pants: '#3a3f4d', hat: '#c8853a', hair: '#4a3323', scarf: null, mitt: '#7a5a3a' });
-    const son1 = makePerson(act, { coat: '#e0a83a', pants: '#2a3550', hat: null, hair: '#5a3d28', kid: 0.4, mitt: '#5a4a3a' });
-    const mom = makePerson(act, { coat: '#c8402e', pants: '#2b3345', hat: '#f0c56a', pom: false, hair: '#6a4630', scarf: '#f4ead6', mitt: '#f0c56a', tool: `<g transform="translate(0 -81)"><rect x="-2" y="-230" width="4" height="330" fill="#8a6a48"/><path d="M-2 -230 q22 -6 26 14 l-6 2 q-4 -8 -20 -6Z" fill="#9aa2aa"/></g>` });
-    const son2 = makePerson(act, { coat: '#3f78c4', pants: '#2a3550', hat: '#d64a3a', pom: true, hair: '#7a5030', kid: 0.75, mitt: '#d64a3a', tool: `<g transform="translate(0 -81)"><rect x="-2.5" y="-46" width="5" height="52" fill="#8a6a48"/><rect x="-14" y="-56" width="28" height="12" rx="2" fill="#7c8590"/></g>` });
-    const shih = makeDog(act, { kind: 'shihpoo', body: '#17161c', dark: '#26242d', old: 0.9 });
-    const schn = makeDog(act, { kind: 'schnauzer', body: '#8b8f98', dark: '#6a6e78', beard: '#e2e4ea', old: 0.15 });
-    // foreground
-    const fg = layer('fg'); const rf = rng(251); let fgh = '';
-    for (let i = 0; i < 20; i++) { const x = i * 130 - 100 + rf() * 40, h = 60 + rf() * 110; let d = `M${x - 26} 1140`; for (let k = 0; k < 6; k++) d += ` L${R2(x - 26 + k * 10 + rf() * 5)} ${R2(1140 - h * (0.4 + rf() * 0.6))} L${R2(x - 21 + k * 10)} 1140`; fgh += `<path d="${d}Z" fill="#4c3a22"/>`; }
-    ins(fg, fgh);
-    // big maple at left, frame
-    const maple = layer('maple');
-    let mp = `<path d="M-30 1200 L-4 380 L38 380 L70 1200Z" fill="#3a2c22"/>`;
-    const rm = rng(261); for (let i = 0; i < 26; i++) { const c = AUT[Math.floor(rm() * 4)]; mp += `<path d="${blob(-40 + rm() * 460, -30 + rm() * 320, 80 + rm() * 80, 60 + rm() * 60, 300 + i, 18, 0.2)}" fill="${c}" opacity="${R2(0.88 + rm() * 0.12)}"/>`; }
-    ins(maple, mp);
-    const ov = svgEl('rect', { x: 0, y: 0, width: 1920, height: 1080, fill: 'rgba(255,190,120,0.09)' }); svg.appendChild(ov);
-    const dep = { sky: 0.02, h1: 0.1, h2: 0.2, lake: 0.3, mid: 0.4, rock: 0.9, wat: 0.9, dock: 1, wfront: 1, fg: 1.4, maple: 1.35 };
-    const camAt = (f) => ({ fx: lerp(1000, 940, E.inOutSine(f / 200)), fy: 610, s: lerp(1.0, 1.12, E.inOutSine(f / 200)), rot: Math.sin(f * 0.03) * 0.15 });
-    const DEC = 705; // deck top (world y)
-    const liftK = (f) => E.inOutCubic(seg(f, 24, 74));
-    const dockX = (f) => lerp(900, 640, E.inOutSine(seg(f, 78, 176)));
-    const angle = (f) => 6.2 * liftK(f) * (1 - E.inOutSine(seg(f, 168, 188))) + 1.6 * spring(f - 186, 0.4, 0.3) * 0 ;
-    function update(f) {
-      const c = camAt(f);
-      cam.setAttribute('transform', `translate(960 560) rotate(${c.rot}) scale(${c.s}) translate(${-c.fx} ${-c.fy})`);
-      for (const n in dep) L[n].setAttribute('transform', `translate(${R2((1 - dep[n]) * (c.fx - 960))} ${R2((1 - dep[n]) * (c.fy - 560) * 0.1)})`);
-      rfs.forEach((e) => e.setAttribute('opacity', R2(0.12 + 0.1 * Math.sin(f * 0.06 + +e.dataset.p))));
-      rps.forEach((e) => e.setAttribute('opacity', R2(0.14 + 0.16 * Math.sin(f * 0.09 + +e.dataset.p * 1.7))));
-      const X0 = dockX(f), th = angle(f), lift = liftK(f);
-      const shake = Math.sin(f * 0.9) * 1.2 * seg(f, 24, 40) * (1 - seg(f, 170, 186));
-      const bob = Math.sin(f * 0.12) * 1.5;
-      dockLocal.setAttribute('transform', `translate(${R2(X0)} ${R2(DEC + bob * 0.5 + shake)}) rotate(${R2(th)} 700 0)`);
-      // men grip the lifting bars: bar end tip at local (-150,14) => world after rotation about (700,0)
-      const rad = th * D2R, bx = (lx, ly) => [700 + (lx - 700) * Math.cos(rad) - ly * Math.sin(rad), (lx - 700) * Math.sin(rad) * -1 * -1 * -1 + ly * Math.cos(rad)];
-      // hand target on the bar: local x of -30 (dad) and -110 (son)
-      const H = (lx) => { const dx = lx - 700; return [X0 + 700 + dx * Math.cos(rad), DEC + bob * 0.5 + shake + dx * Math.sin(rad) + 14 * Math.cos(rad)]; };
-      const walkK = E.inOutSine(seg(f, 78, 176)) > 0 && f < 176 ? 1 : 0;
-      const wph = f * 0.28, grip = E.inOutSine(seg(f, 4, 26));
-      const reach = (fx0, fy0, sc) => {
-        // shoulder at (fx0, fy0-142*sc); find the bar point at arm's length
-        const shx = fx0 + 2 * sc, shy = fy0 - 142 * sc, len = 61 * sc + 4; let best = null, bd = 1e9;
-        for (let lx = -146; lx <= 0; lx += 4) { const h = H(lx), d = Math.hypot(h[0] - shx, h[1] - shy); const e = Math.abs(d - len); if (e < bd) { bd = e; best = h; } }
-        const vx = best[0] - shx, vy = best[1] - shy; return Math.atan2(vx, vy) / D2R;
-      };
-      const dy = 826, ds = 1.32, dxp = X0 - 118 + Math.sin(f * 0.28) * 2 * walkK;
-      const sy = 862, ss = 1.14, sxp = X0 - 210 + Math.sin(f * 0.28 + 1) * 2 * walkK;
-      const aD = lerp(8, reach(dxp, dy, ds), grip), aS = lerp(8, reach(sxp, sy, ss), grip);
-      dad.set({ x: dxp, y: dy, s: ds, flip: 1, walk: wph, amp: 0.3 * walkK, lean: lerp(4, -7, E.inOutSine(seg(f, 60, 90))) * grip, afA: aD, anA: aD - 3, tilt: 3 * lift });
-      son1.set({ x: sxp, y: sy, s: ss, flip: 1, walk: wph + 1.2, amp: 0.32 * walkK, lean: lerp(4, -6, E.inOutSine(seg(f, 60, 90))) * grip, afA: aS, anA: aS - 3, tilt: 2 * lift });
-      // mom + younger son at the side, ready with tools
-      const nod = Math.sin(f * 0.11);
-      mom.set({ x: 1280, y: 985, s: 1.5, flip: -1, walk: 0, amp: 0, lean: -1 + nod * 0.6, afA: 6, anA: 4, tilt: nod * 2 });
-      son2.set({ x: 1400, y: 1010, s: 1.28, flip: -1, walk: 0, amp: 0, lean: 1 + Math.sin(f * 0.13 + 1) * 0.6, afA: 4, anA: 50 + Math.sin(f * 0.2) * 4, tilt: -2 });
-      // dogs
-      shih.set({ x: 1150, y: 992, s: 1.6, flip: -1, sit: 1, wag: f * 0.3, wagA: 8, head: 4 * nod });
-      schn.set({ x: 1590, y: 905, s: 1.5, flip: -1, gp: f * 0.2, amp: 0.15 * (1 - Math.abs(Math.sin(f * 0.03))), wag: f * 0.6, wagA: 14, head: 10 + 6 * Math.sin(f * 0.05) });
-      ordr(act, shih, schn, 990, 905);
-    }
-    const drips = (ctx, f, c) => {
-      const r = rng(9);
-      for (let i = 0; i < 26; i++) { const st = 26 + r() * 130 + i * 3, a = f - st; if (a < 0 || a > 40) continue; const X0 = dockX(st), rad = angle(st) * D2R; const wx = X0 + 60 + r() * 500, wy = DEC + 50; const [sx, sy] = w2s(c, wx, wy + a * a * 0.45); ctx.fillStyle = 'rgba(190,220,236,' + R2(0.8 * (1 - a / 40)) + ')'; ctx.beginPath(); ctx.ellipse(sx, sy, 2.4, 5, 0, 0, 6.283); ctx.fill(); }
-    };
-    const fx = (ctx, f) => { leafFall(ctx, f, 26, 61, ['#d9762b', '#b8402a', '#e7b53a', '#c8582a'], 9); motes(ctx, f, 24, 3, '#fff0d0', 2, 0.8); drips(ctx, f, camAt(f)); };
-    return { a: 500, b: 700, update, fx, camAt, dockX, angle };
-  })();
-};
-
 /* ============ S4 : f 700..900 ============ */
 let S4; const initS4 = () => {
   S4 = (() => {
@@ -156,19 +28,17 @@ let S4; const initS4 = () => {
     ins(far, dec);
     // fields
     const field = layer('field');
-    ins(field, `<rect x="-800" y="498" width="3600" height="150" fill="${grad(defs, [[0, '#e0cf7a'], [1, '#b9a850']])}"/>`);
+    ins(field, `<rect x="-800" y="498" width="3600" height="150" fill="#4a7a3e"/>`);
     let rows = ''; for (let i = -20; i < 40; i++) rows += `<line x1="${960 + (i - 10) * 30}" y1="498" x2="${960 + (i - 10) * 220}" y2="650" stroke="#a89640" stroke-width="2" opacity=".45"/>`;
-    ins(field, rows);
-    // farmhouse + red barn (distant, small)
+    void rows;
+    // the house at the back of the lawn (from the listing photo), with the wood line closing in behind
     const farm = layer('farm');
-    farm.innerHTML =
-      `<g transform="translate(1440 560)"><rect x="-60" y="-52" width="120" height="52" fill="#f2ede0"/><path d="M-72 -52 L0 -100 L72 -52Z" fill="#4a4c58"/><rect x="-10" y="-30" width="20" height="30" fill="#b8402a"/><rect x="-46" y="-40" width="16" height="16" fill="#7d93a3"/><rect x="30" y="-40" width="16" height="16" fill="#7d93a3"/></g>` +
-      `<g transform="translate(1640 566)"><rect x="-56" y="-60" width="112" height="60" fill="#b23a2c"/><path d="M-66 -60 L-40 -92 L40 -92 L66 -60Z" fill="#8a2a22"/><rect x="-16" y="-38" width="32" height="38" fill="#f2e8d8"/></g>` +
-      `<g transform="translate(1240 560)"><path d="${blob(0, -46, 60, 46, 313, 18, 0.15)}" fill="#3f7a4a"/><rect x="-5" y="-14" width="10" height="14" fill="#4a3728"/></g>`;
-    // fence
-    const fence = layer('fence'); let fp = `<line x1="-300" y1="640" x2="2300" y2="640" stroke="#6a5a48" stroke-width="2"/><line x1="-300" y1="626" x2="2300" y2="626" stroke="#6a5a48" stroke-width="2"/>`;
-    for (let x = -260; x < 2300; x += 110) fp += `<rect x="${x}" y="606" width="8" height="52" fill="#7a6650"/>`;
-    ins(fence, fp);
+    let wl = ''; const rw = rng(314);
+    for (let i = 0; i < 40; i++) wl += `<path d="${blob(-500 + i * 80 + rw() * 30, 470 + rw() * 110, 80 + rw() * 60, 90 + rw() * 60, 3140 + i, 18, 0.2)}" fill="${['#3c6a36', '#4c7c3e', '#2f5a30', '#5c8c46'][Math.floor(rw() * 4)]}"/>`;
+    wl += `<rect x="-900" y="560" width="3800" height="100" fill="${grad(defs, [[0, '#2c4a2c', 0], [1, '#2c4a2c', 0.85]])}"/>`;
+    farm.innerHTML = wl + `<g transform="translate(1420 668) scale(0.62)">${gambrelHouse({ detail: 1 })}</g>` +
+      `<g transform="translate(1030 664)"><path d="${blob(0, -60, 60, 70, 313, 18, 0.15)}" fill="#6a9a3c"/><path d="${blob(20, -30, 50, 40, 316, 18, 0.2)}" fill="#8aa84a"/></g>`;
+    layer('fence');
     // lawn with stripes (rows revealed by mowers)
     const lawn = layer('lawn');
     ins(lawn, `<rect x="-900" y="650" width="3800" height="700" fill="${grad(defs, [[0, '#6a9a40'], [1, '#4e8636']])}"/>`);
@@ -271,22 +141,9 @@ let S5; const initS5 = () => {
     let st = ''; for (let k = 0; k < 8; k++) st += `<rect x="-900" y="${756 + k * 46}" width="3800" height="46" fill="${k % 2 ? '#8dc05c' : '#77ac4a'}" opacity="${R2(0.5 + k * 0.05)}"/>`;
     ins(lawn, st);
     // gravel path
-    ins(lawn, `<path d="M880 790 Q900 900 760 1080 L1180 1080 Q1010 900 1000 790Z" fill="#c9bfae"/>`);
     // the house
     const house = layer('house');
-    let cl = ''; for (let y = 440; y < 780; y += 18) cl += `<line x1="500" x2="1420" y1="${y}" y2="${y}" stroke="#d9cfba" stroke-width="2"/>`;
-    const win = (x, y, w, h) => `<rect x="${x - 6}" y="${y - 6}" width="${w + 12}" height="${h + 12}" fill="#fbf6ea"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#5e7488"/><rect x="${x + w / 2 - 2}" y="${y}" width="4" height="${h}" fill="#fbf6ea"/><rect x="${x}" y="${y + h * 0.38}" width="${w}" height="4" fill="#fbf6ea"/><rect x="${x - 34}" y="${y - 4}" width="28" height="${h + 8}" fill="#3f6a4a"/><rect x="${x + w + 6}" y="${y - 4}" width="28" height="${h + 8}" fill="#3f6a4a"/>`;
-    house.innerHTML =
-      `<ellipse cx="960" cy="790" rx="560" ry="18" fill="#000" opacity=".25"/>` +
-      `<rect x="500" y="420" width="920" height="370" fill="#efe7d4"/>${cl}` +
-      `<path d="M440 430 L960 190 L1480 430Z" fill="#4c4f5e"/><path d="M440 430 L960 190 L960 206 L466 430Z" fill="#666a7c"/><rect x="1240" y="230" width="60" height="150" fill="#9a5a48"/>` +
-      win(620, 500, 90, 130) + win(830, 500, 90, 130) + win(1010, 500, 90, 130) + win(1210, 500, 90, 130) +
-      win(650, 668, 90, 100) + win(1180, 668, 90, 100) +
-      // door + porch
-      `<path d="M820 520 L960 470 L1100 520Z" fill="#4c4f5e" opacity="0"/>` +
-      `<rect x="890" y="640" width="140" height="150" fill="#b8402f"/><rect x="890" y="640" width="140" height="150" fill="none" stroke="#fbf6ea" stroke-width="7"/><circle cx="1008" cy="720" r="6" fill="#e9c860"/><path d="M890 640 Q960 596 1030 640Z" fill="#fbf6ea"/>` +
-      `<path d="M800 632 L960 570 L1120 632Z" fill="#4c4f5e"/><rect x="812" y="632" width="10" height="158" fill="#fbf6ea"/><rect x="1098" y="632" width="10" height="158" fill="#fbf6ea"/>` +
-      `<rect x="780" y="790" width="360" height="12" fill="#a99f8c"/><rect x="820" y="802" width="280" height="10" fill="#968c79"/>`;
+    house.innerHTML = `<ellipse cx="1150" cy="792" rx="640" ry="20" fill="#000" opacity=".22"/><g transform="translate(1060 790) scale(1.12)">${gambrelHouse({ detail: 1, glassLit: null })}</g>`;
     // sign
     const sign = layer('sign');
     sign.innerHTML =

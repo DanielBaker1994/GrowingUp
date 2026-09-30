@@ -1,12 +1,12 @@
 /* main.js — scene switching, transitions, year odometer, pencil ruler, grade, master draw(f) */
-const TOTAL = 1700;
+const TOTAL = 1790;
 function boot() {
-if (typeof initS1 !== 'undefined') initS1(); if (typeof initS2 !== 'undefined') initS2(); if (typeof initS3 !== 'undefined') initS3(); if (typeof initS4 !== 'undefined') initS4(); if (typeof initS5 !== 'undefined') initS5(); if (typeof initS6 !== 'undefined') initS6(); if (typeof initS7 !== 'undefined') initS7(); 
-const SCN = [typeof S1 !== 'undefined' && S1, typeof S2 !== 'undefined' && S2, typeof S3 !== 'undefined' && S3, typeof S4 !== 'undefined' && S4, typeof S5 !== 'undefined' && S5, typeof S6 !== 'undefined' && S6, typeof S7 !== 'undefined' && S7];
-const CUTS = [0, 300, 500, 700, 900, 1000, 1200, TOTAL];
+if (typeof initS1 !== 'undefined') initS1(); if (typeof initS2 !== 'undefined') initS2(); if (typeof initS3 !== 'undefined') initS3(); if (typeof initS4 !== 'undefined') initS4(); if (typeof initS5 !== 'undefined') initS5(); if (typeof initS6 !== 'undefined') initS6(); if (typeof initS7 !== 'undefined') initS7(); if (typeof initS8 !== 'undefined') initS8(); 
+const SCN = [typeof S1 !== 'undefined' && S1, typeof S2 !== 'undefined' && S2, typeof S3 !== 'undefined' && S3, typeof S4 !== 'undefined' && S4, typeof S5 !== 'undefined' && S5, typeof S6 !== 'undefined' && S6, typeof S7 !== 'undefined' && S7, typeof S8 !== 'undefined' && S8];
+const CUTS = [0, 300, 500, 700, 900, 1000, 1200, 1400, TOTAL];
 
 /* ---------- odometer year ---------- */
-const UNITS = [[0, 4], [504, 4], [538, 6], [704, 6], [742, 10], [904, 10], [926, 11], [1004, 11], [1034, 14], [1204, 14], [1250, 23]];
+const UNITS = [[0, 4], [504, 4], [538, 6], [704, 6], [742, 10], [904, 10], [926, 11], [1004, 11], [1034, 14], [1204, 14], [1250, 23], [1404, 23], [1440, 25]];
 const TENS = [[0, 0], [704, 0], [746, 1], [1204, 1], [1252, 2]];
 const yearEl = $('year');
 yearEl.innerHTML = '';
@@ -17,31 +17,31 @@ dg0.col.style.transform = 'translateY(0px)';
 const rollPos = (f, keys, ease) => kf(f, keys, ease);
 
 /* ---------- where / note per scene ---------- */
-const WHERE = ['Kahshe Lake · March', 'Kahshe Lake · August', 'Kahshe Lake · October', 'The country place · July', 'The country place · September', 'Kahshe Lake · August', 'Kahshe Lake · June'];
-const NOTE = ['the boys are 12 & 10', 'six months on', '14 & 12, and every hand needed', 'one is off to university now', 'sold.', '22 & 20', '31 & 29'];
-const NOTE_AT = [34, 330, 532, 736, 930, 1034, 1240]; // frame a note starts writing
-const NOTE_LEN = [88, 60, 100, 100, 34, 60, 110];
-const NOTE_ROT = [-2.4, 1.4, -1.6, -2.2, -1, 1.2, -2];
+const WHERE = ['Kahshe Lake · March', 'Kahshe Lake · August', 'Kahshe Lake · October', 'The country place · July', 'The country place · September', 'Kahshe Lake · August', 'Kahshe Lake · June', 'Kahshe Lake · August'];
+const NOTE = ['the boys are 12 & 10', 'six months on', '14 & 12, and every hand needed', 'one is off to university now', 'sold.', '22 & 20', '31 & 29', 'a daughter-in-law, and Ruby'];
+const NOTE_AT = [34, 330, 532, 736, 930, 1034, 1240, 1450]; // frame a note starts writing
+const NOTE_LEN = [88, 60, 100, 100, 34, 60, 60, 120];
+const NOTE_ROT = [-2.4, 1.4, -1.6, -2.2, -1, 1.2, -2, 1.6];
 const whereEl = $('where'), noteEl = $('note');
 const noteSpans = NOTE.map((t, i) => { const s = document.createElement('span'); s.textContent = t; s.style.cssText = 'position:absolute;left:0;top:0;white-space:nowrap'; noteEl.appendChild(s); return s; });
 const whereSpans = WHERE.map((t) => { const s = document.createElement('span'); s.textContent = t; s.style.cssText = 'position:absolute;left:0;top:0;white-space:nowrap'; whereEl.appendChild(s); return s; });
 
 /* ---------- pencil ruler ---------- */
 const ruler = $('ruler'), RX0 = 112, RX1 = 1808, RY = 1030;
-const yx = (y) => RX0 + ((y - 2004) / 19) * (RX1 - RX0);
+const yx = (y) => RX0 + ((y - 2004) / 21) * (RX1 - RX0);
 let rh = `<line id="rl" x1="${RX0}" y1="${RY}" x2="${RX0}" y2="${RY}" stroke="#f4e8d2" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
-for (let y = 2004; y <= 2023; y++) { const big = y % 5 === 4 || y === 2023; rh += `<line x1="${R2(yx(y))}" x2="${R2(yx(y))}" y1="${RY - (big ? 9 : 5)}" y2="${RY + (big ? 9 : 5)}" stroke="#f4e8d2" stroke-width="1.5" opacity="${big ? 0.55 : 0.3}"/>`; }
-rh += `<text x="${RX0}" y="${RY + 34}" fill="#f4e8d2" opacity=".6" font-family="DM Mono" font-size="16" letter-spacing="3">2004</text><text x="${RX1}" y="${RY + 34}" text-anchor="end" fill="#f4e8d2" opacity=".6" font-family="DM Mono" font-size="16" letter-spacing="3">2023</text>`;
+for (let y = 2004; y <= 2025; y++) { const big = y % 5 === 4 || y === 2025; rh += `<line x1="${R2(yx(y))}" x2="${R2(yx(y))}" y1="${RY - (big ? 9 : 5)}" y2="${RY + (big ? 9 : 5)}" stroke="#f4e8d2" stroke-width="1.5" opacity="${big ? 0.55 : 0.3}"/>`; }
+rh += `<text x="${RX0}" y="${RY + 34}" fill="#f4e8d2" opacity=".6" font-family="DM Mono" font-size="16" letter-spacing="3">2004</text><text x="${RX1}" y="${RY + 34}" text-anchor="end" fill="#f4e8d2" opacity=".6" font-family="DM Mono" font-size="16" letter-spacing="3">2025</text>`;
 rh += `<circle id="rd" cx="${RX0}" cy="${RY}" r="6.5" fill="#f4e8d2"/><circle id="rd2" cx="${RX0}" cy="${RY}" r="14" fill="none" stroke="#f4e8d2" stroke-width="1.2" opacity=".6"/>`;
 ruler.innerHTML = rh;
-const YEARKEY = [[0, 2004], [504, 2004], [538, 2006], [704, 2006], [742, 2010], [904, 2010], [926, 2011], [1004, 2011], [1034, 2014], [1204, 2014], [1250, 2023]];
+const YEARKEY = [[0, 2004], [504, 2004], [538, 2006], [704, 2006], [742, 2010], [904, 2010], [926, 2011], [1004, 2011], [1034, 2014], [1204, 2014], [1250, 2023], [1404, 2023], [1440, 2025]];
 
 /* ---------- ending type ---------- */
 const endEl = $('end'), end2 = $('end2');
 const ENDTXT = 'Growing up, together.';
 endEl.innerHTML = [...ENDTXT].map((c) => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
 const chEls = [...endEl.querySelectorAll('.ch')];
-end2.textContent = 'Kahshe Lake, Ontario  ·  2004 — 2023';
+end2.textContent = 'Kahshe Lake, Ontario  ·  2004 — 2025';
 
 /* ---------- canvases / overlays ---------- */
 const fx = $('fx').getContext('2d');
@@ -59,8 +59,8 @@ function draw(t) {
   const f = t * FPS + 1e-6;
   // which scene(s)
   let idx = 0;
-  for (let i = 0; i < 7; i++) if (f >= CUTS[i]) idx = i;
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 8; i++) if (f >= CUTS[i]) idx = i;
+  for (let i = 0; i < 8; i++) {
     const s = SCN[i], el = $('sc' + (i + 1));
     let on = i === idx;
     if (i === 1 && f >= 500 - 0 && f < 500) on = true;
@@ -92,7 +92,7 @@ function draw(t) {
   // flash / dip / leak overlays
   let fl = 0, lk = 0, dip = 0;
   fl += kf(f, [[290, 0], [299, 0.95], [303, 0.95], [322, 0]], E.inOutSine);
-  lk += kf(f, [[690, 0], [699, 1], [704, 1], [728, 0]], E.inOutSine) + kf(f, [[1196, 0], [1206, 0.9], [1214, 0.5], [1240, 0]], E.inOutSine) + kf(f, [[496, 0], [512, 0.55], [540, 0]], E.inOutSine);
+  lk += kf(f, [[690, 0], [699, 1], [704, 1], [728, 0]], E.inOutSine) + kf(f, [[1196, 0], [1206, 0.9], [1214, 0.5], [1240, 0]], E.inOutSine) + kf(f, [[496, 0], [512, 0.55], [540, 0]], E.inOutSine) + kf(f, [[1392, 0], [1401, 0.85], [1408, 0.6], [1436, 0]], E.inOutSine);
   fl += kf(f, [[692, 0], [699, 0.75], [703, 0.75], [716, 0]], E.inOutSine);
   const dark = kf(f, [[992, 0], [999, 1], [1003, 1], [1014, 0]], E.inOutSine);
   flash.style.opacity = R2(Math.min(1, fl));
@@ -106,15 +106,15 @@ function draw(t) {
   dgU.col.style.transform = `translateY(${-rollPos(f, UNITS, E.outQuart) * 236}px)`;
   dgT.col.style.transform = `translateY(${-rollPos(f, TENS, E.inOutCubic) * 236}px)`;
   // reveal of year block (fades in on S1, soft) and out on end card
-  const yv = E.outCubic(seg(f, 8, 40)) * (1 - E.inOutSine(seg(f, 1420, 1450)));
+  const yv = E.outCubic(seg(f, 8, 40)) * (1 - E.inOutSine(seg(f, 1618, 1644)));
   yearEl.style.opacity = R2(yv);
   yearEl.style.transform = `translateY(${R2((1 - E.outQuart(seg(f, 8, 44))) * 26)}px)`;
   // where + note
   whereEl.style.opacity = R2(yv * 0.9);
-  whereSpans.forEach((s, i) => { const inn = E.inOutSine(seg(f, CUTS[i] + 8, CUTS[i] + 26)), out = i < 6 ? 1 - E.inOutSine(seg(f, CUTS[i + 1] - 3, CUTS[i + 1] + 6)) : 1 - E.inOutSine(seg(f, 1420, 1450)); s.style.opacity = R2(Math.min(inn, out)); s.style.transform = `translateX(${R2((1 - inn) * -12)}px)`; });
+  whereSpans.forEach((s, i) => { const inn = E.inOutSine(seg(f, CUTS[i] + 8, CUTS[i] + 26)), out = i < 7 ? 1 - E.inOutSine(seg(f, CUTS[i + 1] - 3, CUTS[i + 1] + 6)) : 1 - E.inOutSine(seg(f, 1618, 1644)); s.style.opacity = R2(Math.min(inn, out)); s.style.transform = `translateX(${R2((1 - inn) * -12)}px)`; });
   noteSpans.forEach((s, i) => {
     const a = NOTE_AT[i], k = E.inOutSine(seg(f, a, a + NOTE_LEN[i] * 0.42));
-    const out = i < 6 ? 1 - E.inOutSine(seg(f, CUTS[i + 1] - 4, CUTS[i + 1] + 4)) : 1 - E.inOutSine(seg(f, 1420, 1450));
+    const out = i < 7 ? 1 - E.inOutSine(seg(f, CUTS[i + 1] - 4, CUTS[i + 1] + 4)) : 1 - E.inOutSine(seg(f, 1618, 1644));
     s.style.opacity = R2(out * (k > 0 ? 1 : 0));
     s.style.clipPath = `inset(-10px ${R2((1 - k) * 100)}% -10px 0)`;
     s.style.transform = `rotate(${NOTE_ROT[i]}deg)`;
@@ -122,14 +122,14 @@ function draw(t) {
   // ruler
   const yc = kf(f, YEARKEY, E.inOutCubic), rx = yx(yc);
   $('rl').setAttribute('x2', R2(rx)); $('rd').setAttribute('cx', R2(rx)); $('rd2').setAttribute('cx', R2(rx));
-  const pulse = 1 + 0.25 * Math.max(0, 1 - Math.abs(f - [0, 300, 500, 700, 900, 1000, 1200].reduce((b, c) => (f >= c ? c : b), 0) - 20) / 14);
+  const pulse = 1 + 0.25 * Math.max(0, 1 - Math.abs(f - [0, 300, 500, 700, 900, 1000, 1200, 1400].reduce((b, c) => (f >= c ? c : b), 0) - 20) / 14);
   $('rd2').setAttribute('r', R2(13 * pulse));
-  ruler.style.opacity = R2(E.outCubic(seg(f, 24, 60)) * (1 - E.inOutSine(seg(f, 1420, 1450))));
+  ruler.style.opacity = R2(E.outCubic(seg(f, 24, 60)) * (1 - E.inOutSine(seg(f, 1618, 1644))));
   // end card
-  chEls.forEach((c, i) => { const a = 1430 + i * 2.6, k = E.outCubic(seg(f, a, a + 26)); c.style.opacity = R2(k); c.style.filter = `blur(${R2((1 - k) * 7)}px)`; c.style.transform = `translateY(${R2((1 - E.outQuart(seg(f, a, a + 32))) * 14)}px)`; });
-  end2.style.opacity = R2(E.inOutSine(seg(f, 1500, 1540)));
-  end2.style.letterSpacing = R2(lerp(0.5, 0.34, E.outQuart(seg(f, 1500, 1560))) * 1) + 'em';
-  const fo = kf(f, [[1640, 0], [1699, 1]], E.inSine); // final fade to black handled by darkEl2
+  chEls.forEach((c, i) => { const a = 1650 + i * 2.6, k = E.outCubic(seg(f, a, a + 26)); c.style.opacity = R2(k); c.style.filter = `blur(${R2((1 - k) * 7)}px)`; c.style.transform = `translateY(${R2((1 - E.outQuart(seg(f, a, a + 32))) * 14)}px)`; });
+  end2.style.opacity = R2(E.inOutSine(seg(f, 1712, 1748)));
+  end2.style.letterSpacing = R2(lerp(0.5, 0.34, E.outQuart(seg(f, 1712, 1766))) * 1) + 'em';
+  const fo = kf(f, [[1762, 0], [1789, 1]], E.inSine); // final fade to black handled by darkEl2
   // canvas fx
   fx.clearRect(0, 0, 1920, 1080);
   if (cur && cur.fx) cur.fx(fx, f - CUTS[idx], f);

@@ -9,7 +9,7 @@ from scipy.io import wavfile
 
 SR = 44100
 FPS = 30
-DUR = 57.0
+DUR = 60.0
 N = int(SR * DUR)
 rng = np.random.default_rng(20040330)
 F2T = lambda f: f / FPS
@@ -207,7 +207,7 @@ CH = {  # bar index (0-based) -> (root midi for bass, chord tones for arps)
     8: (38, [50, 57, 62, 66]), 9: (36, [48, 55, 60, 64]), 10: (31, [43, 50, 55, 59]), 11: (38, [45, 50, 54, 62]),
     12: (38, [50, 57, 62, 66]), 13: (33, [45, 52, 57, 61]), 14: (35, [47, 54, 59, 62]), 15: (31, [43, 50, 55, 59]), 16: (38, [50, 57, 62, 66]),
 }
-def bar_t(b, beat=0): return (b * 100) / FPS + beat * BEAT
+def bar_t(b, beat=0): return (b * 100 + (50 if b >= 14 else 0)) / FPS + beat * BEAT  # 2-beat breath before bar 14 (the 2025 deck)
 # pads (long)
 for b, m, ln in ((0, 38, 2.4), (1, 45, 2), (2, 47, 1), (3, 43, 2)):
     pass
@@ -265,7 +265,7 @@ put(MUS, pad(50, 6, 1.0), bar_t(16) - 0.2, 0.5); put(MUS, pad(57, 6, 0.8), bar_t
 for b in (4, 5, 6, 7, 8, 12, 13, 14, 15):
     for i in range(8):
         put(MUS, shaker(0.26 if i % 2 == 0 else 0.15), bar_t(b) + i * BEAT / 2, 0.5, 0.35 if i % 2 else -0.35)
-    put(MUS, kick(0.5), bar_t(b), 0.5); put(MUS, kick(0.42), bar_t(b, 2.0), 0.45)
+    if b != 14: put(MUS, kick(0.5), bar_t(b), 0.5); put(MUS, kick(0.42), bar_t(b, 2.0), 0.45)
     if b >= 12: put(MUS, brush(0.25), bar_t(b, 1), 0.5); put(MUS, brush(0.25), bar_t(b, 3), 0.5)
 # reverb on the music bus
 def reverb(bus, wet=0.26, rt=2.8):
@@ -282,7 +282,9 @@ def automate(bus, pts):
     tf = np.arange(N) / SR * FPS
     g = np.interp(tf, [p[0] for p in pts], [p[1] for p in pts])
     return bus * g
-MUS = automate(MUS, [(0, 0.5), (300, 0.7), (500, 0.85), (890, 1.0), (899, 0.55), (960, 0.5), (1000, 0.7), (1200, 0.95), (1450, 1.0), (1640, 0.9), (1700, 0.75)])
+# the 2-beat breath into 2025: a held pad and two soft notes
+put(MUS, pad(50, 3.2, 0.7), F2T(1398), 0.4, -0.1); put(MUS, piano(62, 2.4, 0.42), F2T(1404), 0.42, 0.1); put(MUS, piano(69, 2.0, 0.36), F2T(1428), 0.36, 0.2)
+MUS = automate(MUS, [(0, 0.5), (300, 0.7), (500, 0.85), (890, 1.0), (899, 0.55), (960, 0.5), (1000, 0.7), (1200, 0.95), (1390, 0.95), (1420, 0.75), (1540, 0.85), (1560, 1.0), (1650, 1.0), (1760, 0.85), (1790, 0.7)])
 
 # ================= SOUND DESIGN =================
 # ---- S1 ----
@@ -353,22 +355,36 @@ putf(SFX, jingle(0.14), 1094, 1.0, -0.3); putf(SFX, jingle(0.12), 1118, 1.0, 0.2
 putf(SFX, breath(1.6, 0.16), 1088, 1.0, -0.3); putf(SFX, breath(1.7, 0.14), 1160, 1.0, -0.3)
 for f_ in range(1052, 1145, 5): putf(SFX, grass(0.16), f_, 1.0, -0.4 + 0.8 * rng.random())
 putf(SFX, swell(0.7, 0.4), 1190, 1.0)
-# ---- S7 ---- (1200..1700)
-for f_, fq, p in ((1210, 3700, -0.6), (1244, 4200, 0.6), (1288, 3400, -0.2), (1330, 4500, 0.5), (1376, 3900, -0.5), (1420, 3300, 0.3), (1470, 4100, 0.7), (1520, 3600, -0.4), (1580, 4300, 0.5)):
-    putf(SFX, bird(fq, 0.34, 0.17), f_, 1.0, p)
-put(BED, water_lap(10, 0.1, 9), F2T(1200), 1.0, 0.0); put(BED, leaf_rustle(10, 0.06, 5), F2T(1200), 1.0, 0.3); put(BED, wind(12, 0.12, 12), F2T(1200), 1.0, 0.1)
+# ---- S7 ---- (1200..1400): zoomies in the great room, then the sofa
+put(BED, wind(7, 0.05, 12), F2T(1200), 1.0, 0.1)
+for f_, fq, p in ((1214, 3700, 0.6), (1262, 4200, 0.7), (1318, 3500, 0.5)): putf(SFX, bird(fq, 0.3, 0.07), f_, 1.0, p)
 r2 = np.random.default_rng(4)
-for f_ in np.arange(1204, 1500, 8.5):
-    putf(SFX, jingle(0.11 * (1 if f_ < 1420 else 0.6)), f_ + r2.integers(0, 3), 1.0, -0.6 + 1.2 * r2.random())
-for f_ in np.arange(1204, 1470, 5.5): putf(SFX, grass(0.15), f_, 1.0, -0.4 + 0.8 * r2.random())
-putf(SFX, breath(1.6, 0.2), 1500, 1.0, -0.2); putf(SFX, jingle(0.14), 1506, 1.0, -0.1)
+for f_ in np.arange(1202, 1336, 3.2): putf(SFX, clink(0.05 + 0.04 * r2.random(), 4200 + 1400 * r2.random()), f_ + r2.random(), 1.0, -0.6 + 1.2 * r2.random())  # nails on pine
+for f_ in np.arange(1204, 1336, 7.5): putf(SFX, jingle(0.11), f_ + r2.integers(0, 3), 1.0, -0.5 + 1.0 * r2.random())
+for f_ in (1336, 1350): putf(SFX, clunk(0.32, 70), f_ + 13, 1.0, 0.3); putf(SFX, brush(0.2), f_ + 13, 1.0, 0.3); putf(SFX, jingle(0.13), f_ + 14, 1.0, 0.3)
+putf(SFX, breath(1.8, 0.2), 1374, 1.0, 0.2)
+putf(SFX, swell(0.6, 0.35), 1386, 1.0)
+# ---- S8 ---- (1400..1790): the deck at dusk, then the dogs at the window
+def loon(dur=2.4, vel=0.1):
+    n = int(dur * SR); t = np.arange(n) / SR
+    f = 760 + 360 * np.sin(np.pi * np.clip(t / (dur * 0.55), 0, 1)) ** 0.7 - 120 * np.clip((t - dur * 0.6) / (dur * 0.4), 0, 1) + 9 * np.sin(2 * np.pi * 5.5 * t) * np.clip(t / 0.6, 0, 1)
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    x = np.sin(ph) + 0.25 * np.sin(2 * ph) + 0.08 * np.sin(3 * ph)
+    return x * np.clip(t / 0.25, 0, 1) * np.clip((dur - t) / 0.6, 0, 1) * vel
+put(BED, water_lap(13, 0.11, 11), F2T(1400), 1.0, 0.0); put(BED, crickets(13, 0.06, 7), F2T(1400), 1.0, 0.1); put(BED, wind(13, 0.08, 14), F2T(1400), 1.0, -0.2)
+putf(SFX, loon(2.6, 0.085), 1436, 1.0, -0.45); putf(SFX, loon(2.2, 0.05), 1502, 1.0, 0.5)
+putf(SFX, swell(1.2, 0.2), 1522, 1.0)
+for k, f_ in enumerate((1570, 1586, 1604)):
+    for j in range(3): putf(SFX, clink(0.08, 3600 + 500 * j), f_ + 3 + j * 1.5, 1.0, (-0.4, 0.0, 0.4)[k])
+    putf(SFX, jingle(0.08), f_ + 5, 1.0, (-0.4, 0.0, 0.4)[k])
+putf(SFX, breath(1.4, 0.14), 1682, 1.0, 0.4)
 # ---------- mix ----------
 MUS = reverb(MUS, 0.30, 2.8)
 SFXr = reverb(SFX, 0.14, 1.6)
 mix = MUS * 0.85 + SFXr * 1.0 + BED * 1.0
 # fades
 tf = np.arange(N) / SR * FPS
-g = np.interp(tf, [0, 12, 1650, 1699, 1710], [0, 1, 1, 0.0, 0.0])
+g = np.interp(tf, [0, 12, 1752, 1789, 1800], [0, 1, 1, 0.0, 0.0])
 mix *= g
 # soft-limit
 pk = np.max(np.abs(mix)); mix = np.tanh(mix / (pk * 0.9)) * 0.9 if pk > 0 else mix

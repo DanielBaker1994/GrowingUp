@@ -1,4 +1,4 @@
-/* yardscenes.js — S2 (2004 chase), S6 (2014 the old dog), S7 (2023 Ludwig & Wolfgang + end card) */
+/* yardscenes.js — S2 (2004 chase), S6 (2014 the old dog), (S7 and S8 live in scenes78.js) */
 const ordr = (act, a, b, ya, yb) => { const A = a.g, B = b.g; const first = ya <= yb ? A : B, second = ya <= yb ? B : A; if (act.lastChild !== second) { act.appendChild(first); act.appendChild(second); } };
 const motes = (ctx, f, n, seed, col, sz, speed) => {
   const r = rng(seed);
@@ -92,48 +92,3 @@ let S6; const initS6 = () => {
   })();
 };
 
-/* ============ S7 : f 1200..1700 ============ */
-let S7; const initS7 = () => {
-  S7 = (() => {
-    const Y = buildYard('sv7', LOOK7);
-    const lud = makeDog(Y.act, { kind: 'schnauzer', body: '#1c1c23', dark: '#111116', beard: '#3b3b48', collar: '#2f7be0' });
-    const wolf = makeDog(Y.act, { kind: 'schnauzer', body: '#1c1c23', dark: '#111116', beard: '#42424f', collar: '#0e0e12', collar2: '#2f7be0' });
-    const labs = ['Ludwig', 'Wolfgang'].map((n) => { const d = document.createElement('div'); d.className = 'lab'; d.textContent = n; $('names').appendChild(d); return d; });
-    const camAt = (f) => {
-      const k = E.inOutQuart(seg(f, 120, 300)), hk = E.inOutSine(seg(f, 0, 200));
-      return { fx: lerp(lerp(760, 900, hk), 900, k), fy: lerp(lerp(790, 780, hk), 425, k), s: lerp(lerp(1.55, 1.45, hk), 1.0, k), rot: (1 - k) * Math.sin(f * 0.02) * 0.4 };
-    };
-    const om = (2 * Math.PI) / 118;
-    const path = (th, ph) => ({ x: 900 + 420 * Math.sin(th) + 30 * Math.sin(th * 3 + ph), y: 925 + 80 * Math.sin(2 * th + ph) });
-    let pos = { l: { x: 0, y: 0 }, w: { x: 0, y: 0 } };
-    function update(f) {
-      const c = camAt(f); Y.setCam(c, f);
-      const settle = E.inOutSine(seg(f, 200, 262));
-      const thL = 0.2 + om * f * (1 - 0.5 * settle) , thW = thL - 0.9 + Math.sin(f * 0.03) * 0.5;
-      let pl = path(thL, 0), pw = path(thW, 1.3);
-      const sitL = { x: 720, y: 800 }, sitW = { x: 850, y: 815 };
-      pl = { x: lerp(pl.x, sitL.x, settle), y: lerp(pl.y, sitL.y, settle) }; pw = { x: lerp(pw.x, sitW.x, settle), y: lerp(pw.y, sitW.y, settle) };
-      const roll = kf(f, [[96, 0], [116, 360], [200, 360]], E.inOutCubic) * (f > 96 && f < 118 ? 1 : 0);
-      const cl = Math.cos(thL), cw = Math.cos(thW);
-      const bow = (0.5 + 0.5 * Math.sin(f * 0.19)) * (1 - settle) * (f % 90 > 50 ? 1 : 0.25);
-      lud.set({ x: pl.x, y: pl.y, s: depthS(pl.y) * 1.55, flip: settle > 0.4 ? 1 : cl >= 0 ? 1 : -1, gp: f * 0.75, amp: (0.35 + 0.65 * Math.abs(cl)) * (1 - settle), gallop: 1, bow: bow, spin: roll, sit: settle, wag: f * 1.0, wagA: 22, head: -6 * settle });
-      wolf.set({ x: pw.x, y: pw.y, s: depthS(pw.y) * 1.5, flip: settle > 0.4 ? 1 : cw >= 0 ? 1 : -1, gp: f * 0.78, amp: (0.35 + 0.65 * Math.abs(cw)) * (1 - settle), gallop: 1, bow: (1 - bow) * 0.4 * (1 - settle), sit: settle, wag: f * 1.1 + 1, wagA: 24, head: -6 * settle });
-      ordr(Y.act, lud, wolf, pl.y, pw.y);
-      pos = { l: pl, w: pw, c };
-      // name notes follow the dogs
-      [[labs[0], pl, 44, -110], [labs[1], pw, 84, 20]].forEach(([el, p, at, dxl], i) => {
-        const [sx, sy] = w2s(c, p.x, p.y - 150 * depthS(p.y));
-        const a = E.inOutSine(seg(f, at, at + 20)) * (1 - E.inOutSine(seg(f, 196, 224)));
-        el.style.opacity = R2(a); el.style.left = R2(sx + dxl) + 'px'; el.style.top = R2(sy - 78 - (1 - a) * 8) + 'px'; el.style.transform = `rotate(${i ? 3 : -3}deg)`;
-        el.style.clipPath = `inset(-10px ${R2((1 - E.inOutSine(seg(f, at, at + 26))) * 100)}% -10px 0)`;
-      });
-      Y.wg.forEach((e) => e.setAttribute('opacity', 0.0));
-      Y.win.forEach((e, i) => e.setAttribute('fill', '#7fa0b4'));
-    }
-    const fx = (ctx, f) => {
-      motes(ctx, f, 56, 12, '#fff8dc', 2.4, 1.1);
-      ctx.globalCompositeOperation = 'lighter'; rays(ctx, 1180, 400, f, 0.075, 'rgba(255,236,170,A)'); ctx.globalCompositeOperation = 'source-over';
-    };
-    return { a: 1200, b: 1700, update, fx, camAt };
-  })();
-};

@@ -12,6 +12,13 @@
   EVIDENCE: 317 MB → 16 MB at crf 28, no visible loss on stills.
   GOES IN: SKILL.md §5
 
+- RULE: When the client sends photos, list the 5–8 features that make each place theirs (the carved bear, the gambrel roof, the red pillow) and draw those; skip everything else.
+  EVIDENCE: revision 2 read as "our cottage" from a handful of props per scene, with the same paper-cut style.
+  GOES IN: SKILL.md §2
+- RULE: A dolly-out through a window needs two planes at different scale rates, and the near plane should fade and un-blur in over the first ~20% of the move, or the mullions pop in.
+  EVIDENCE: S8, the mullion appeared as a hard 130 px bar on the first frame of the move until the blur-in was added.
+  GOES IN: references/motion-feel.md
+
 ## Skill feedback
 - GOT IN THE WAY: Original mode assumes ElevenLabs and an image model exist. FIX: add a no-credentials fallback (code-drawn art + numpy synth, as in tools/make_audio.py).
 - Tools written: tools/shot.cjs (stills), tools/make_audio.py (score + SFX placed by frame).
