@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """make_audio.py — mixes the film's soundtrack: the score (assets/audio/score.wav, built by make_score.py from
 sampled piano, cello and violin) under sound design built from recorded sounds in assets/sfx/ (snow and wood
-footsteps, a real door creak for the ramp hinge, lake lapping, rain, crickets, birdsong, wind; sources and licenses
-in assets/sfx/CREDITS.md). Only the two lawn mowers are still synthesized: there was no usable open recording.
+footsteps, a real door creak for the ramp hinge, lake lapping, rain, crickets, wind, bees; sources and licenses
+in assets/sfx/CREDITS.md). Synthesized: the two lawn mowers and the distant loons, since no usable open recording
+of either was reachable here.
 Every event is placed from the composition's own frame numbers. Output: assets/audio/mix.wav (stereo, 44.1k).
 Needs numpy, scipy and ffmpeg on PATH."""
 import numpy as np, os, subprocess
@@ -81,7 +82,7 @@ SLOSH = [load(f'minetest_water_footstep.{i}.ogg') for i in (1, 2, 3)]
 GATE = load('minetest_fencegate_close.ogg')
 WIND = load('lugaru_Wind.ogg'); LAND = load('lugaru_Land.ogg'); THUD = load('lugaru_Thud.ogg')
 CREAK = load('scratch_DoorCreak.wav'); RIPPLES = load('scratch_Ripples.wav'); CRICKETS = load('scratch_Crickets.wav')
-BIRDS = [load(f'wesnoth_birds{i}.ogg') for i in (1, 2, 3)]
+BEES = [load(f'megaglest_bee{i}.wav') for i in (1, 2, 3, 4)]
 SHIP = load('wesnoth_ship.ogg'); GOLD = load('wesnoth_gold.ogg')
 LAKE = [load('lincity_ParklandLake1.wav'), load('lincity_ParklandLake2.wav')]
 TEAR = load('crossfire_Tear.wav'); RAIN = load('tuxpaint_rain.ogg')
@@ -108,7 +109,6 @@ def drip(vel):  # one water tick out of the ripples recording
 def creak(t0, dur, rate=0.7, vel=1.0):  # the ramp hinge: a slice of the door creak, slowed and darkened
     return lp(cut(pitch(CREAK, rate), t0, t0 + dur, 0.08, 0.25), 3200) * vel
 def knock(vel, rate=1.0): return fade(pitch(KNOCK[rng.integers(0, 2)], rate), 0.0005, 0.03) * vel
-def birdbed(dur, seed): return rms_norm(loop(np.concatenate(BIRDS), dur, seed, 0.6), 0.1)
 def lakebed(dur, seed, which=0): return rms_norm(lp(loop(LAKE[which], dur, seed, 0.5), 2600), 0.1)
 def windbed(dur, seed): return rms_norm(loop(WIND, dur, seed, 1.0), 0.1)
 def cricketbed(dur, seed): return rms_norm(loop(CRICKETS, dur, seed, 0.5), 0.1)
@@ -119,6 +119,45 @@ def engine(dur, f0=62, vel=0.3, seed=1):  # the one synthesized sound left: the 
     saw = 2 * (ph % 1) - 1; pul = (np.sin(2 * np.pi * ph * 2) > 0.2).astype(float) * 2 - 1
     x = lp(saw * 0.7 + pul * 0.4 + 0.25 * r.standard_normal(n), 900) * (0.75 + 0.25 * np.sin(2 * np.pi * (f0 / 2) * t))
     return x * vel
+
+def loon(seed, f1=740.0, f2=1110.0, dur=3.6):
+    """a common loon's wail far across the water: a low note sliding up, a break up to the long high note, a droop at
+    the end; nearly pure (a little 2nd and 3rd harmonic, some breath), then air absorption and the lake's echo"""
+    r = np.random.default_rng(seed); n = int(dur * SR); t = np.arange(n) / SR
+    T1 = 1.1 + 0.3 * r.random(); TB = 0.12
+    f = np.where(t < T1, f1 * (0.84 + 0.16 * np.clip(t / 0.28, 0, 1) ** 0.6 + 0.02 * t / T1),
+                 f1 * 1.02 + (f2 - f1 * 1.02) * np.clip((t - T1) / TB, 0, 1) ** 0.5)
+    f = f * np.where(t > T1 + TB, 1 - 0.035 * (t - T1 - TB) / (dur - T1 - TB) - 0.12 * np.clip((t - dur + 0.35) / 0.35, 0, 1) ** 2, 1)
+    vib = 1 + np.where(t > T1, 0.006, 0.0025) * np.sin(2 * np.pi * (5.2 + 0.4 * r.random()) * t + r.random() * 6)
+    drift = 1 + 0.004 * lp(r.standard_normal(n), 3) / max(1e-9, np.std(lp(r.standard_normal(n), 3)))
+    ph = 2 * np.pi * np.cumsum(f * vib * drift) / SR
+    x = np.sin(ph) + 0.22 * np.sin(2 * ph + 0.4) + 0.07 * np.sin(3 * ph + 1.1) + 0.02 * np.sin(4 * ph)
+    x += 0.05 * hp(lp(r.standard_normal(n), 2400), 500)
+    env = np.clip(t / 0.22, 0, 1) ** 1.5 * np.clip((dur - t) / 0.55, 0, 1) ** 1.2 * (1 - 0.35 * np.exp(-((t - T1 - 0.04) / 0.05) ** 2))
+    x = lp(x * env, 2800) * 0.9
+    # the lake: a long soft tail, and the far shore handing it back
+    m = int(4.0 * SR); tt = np.arange(m) / SR
+    ir = lp(r.standard_normal(m), 3000) * np.exp(-tt / 0.55); ir[:int(0.03 * SR)] *= np.linspace(0, 1, int(0.03 * SR)); ir /= np.sqrt(np.sum(ir ** 2))
+    wet = fftconvolve(x, ir)
+    out = np.zeros(len(wet) + int(0.6 * SR)); out[:len(x)] += 0.55 * x; out[:len(wet)] += 0.8 * wet
+    d = int((0.42 + 0.1 * r.random()) * SR); out[d:d + len(x)] += 0.22 * lp(x, 1600)
+    return rms_norm(out, 0.1)
+def put_moving(bus, sig, t0, gain, pan_at):
+    """place sig with a pan that follows pan_at(seconds since t0)"""
+    i = int(t0 * SR); n = min(len(sig), N - i)
+    if n <= 0: return
+    pn = np.clip(pan_at(np.arange(n) / SR), -1, 1)
+    bus[0, i:i + n] += sig[:n] * gain * np.cos((pn + 1) * np.pi / 4); bus[1, i:i + n] += sig[:n] * gain * np.sin((pn + 1) * np.pi / 4)
+def bees(dur, seed):
+    """the swarm: the four buzz recordings layered at a few pitches, each voice fluttering in level"""
+    r = np.random.default_rng(seed); n = int(dur * SR); out = np.zeros(n)
+    for k in range(5):
+        v = loop(np.concatenate([BEES[(j + k) % 4] for j in range(4)]), dur + 0.5, seed + k, 0.3)
+        v = pitch(v, 0.94 + 0.16 * r.random())[:n]
+        if len(v) < n: v = np.pad(v, (0, n - len(v)))
+        tt = np.arange(n) / SR; fl = 0.6 + 0.4 * np.sin(2 * np.pi * (0.7 + r.random()) * tt + r.random() * 6)
+        out += v * fl
+    return rms_norm(hp(out, 220), 0.1)
 
 # ================= SCORE =================
 _, sc = wavfile.read(os.path.join(HERE, '..', 'assets', 'audio', 'score.wav'))
@@ -143,7 +182,8 @@ for k0, pan, vol in ((0.0, -0.1, 0.22), (0.9, -0.55, 0.16), (2.1, -0.4, 0.12), (
         if 0 <= f_ < 296: putf(SFX, snow_step(vol * (0.85 + 0.3 * rng.random())), f_ - 0.5, 1.0, pan)
 for f_ in range(6, 296, 5): putf(SFX, snow_pat(0.06 + 0.03 * rng.random()), f_ + rng.random(), 1.0, 0.35 + 0.1 * rng.random())
 # ---- S2 ---- (300..500): the two dogs chasing round the deck
-bed(lakebed(7, 4), 300, 500, 0.36, 0.3, 0.3, 0.3); bed(birdbed(7, 1), 300, 500, 0.4, -0.2, 0.4, 0.4)
+bed(lakebed(7, 4), 300, 500, 0.42, 0.3, 0.3, 0.3); bed(windbed(7, 31), 300, 500, 0.12, -0.3, 0.4, 0.4)
+putf(BED, loon(41), 352, 0.1, -0.55)                      # a loon far off down the lake
 D2R = np.pi / 180; CS, SN = np.cos(-20 * D2R), np.sin(-20 * D2R)
 def deck_dog(lag, wob, gpk, gain, bright, tag):
     for f10 in range(0, 2000):
@@ -172,7 +212,12 @@ for f_ in range(544, 688, 5):                           # drips off the undersid
     if rng.random() < 0.6: putf(SFX, drip(0.1 + 0.08 * rng.random() * (1 - abs(f_ - 610) / 100)), f_ + rng.integers(0, 3), 1.0, -0.5 + 0.4 * rng.random())
 for f_ in np.arange(552, 640, 11): putf(SFX, tags(0.045), f_, 1.0, -0.6)  # the schnauzer trots along the cap
 # ---- S4 ---- (700..900): mowing
-bed(birdbed(7, 2), 700, 900, 0.3, 0.0, 0.3, 0.3); bed(windbed(7, 5), 700, 900, 0.12, 0.2, 0.3, 0.3)
+bed(windbed(7, 5), 700, 900, 0.16, 0.2, 0.3, 0.3)
+# the swarm after her, far off at the back of the lawn: panned to where she runs (lawn depth, the camera's drift)
+def _run_pan(ts):
+    f = ts * FPS; e = 0.5 - 0.5 * np.cos(np.pi * np.clip(f / 200, 0, 1)); fx = 900 + 110 * e; sc = 1.04 + 0.1 * e
+    x = 700 + 5.9 * f + 26 * np.sin(f * 0.045); return 0.85 * ((960 + sc * (x + 0.05 * (fx - 960) - fx)) - 960) / 960
+put_moving(BED, fade(bees(6.8, 51), 0.4, 0.4), F2T(700), 0.22, _run_pan)
 put(BED, engine(6.9, 58, 0.28, 1), F2T(700), 1.0, -0.15)   # riding mower: enters left, travels right
 put(BED, engine(6.9, 96, 0.15, 2), F2T(700), 1.0, 0.2)     # push mower
 for f_ in range(704, 896, 7): putf(SFX, fade(pitch(GRASS[rng.integers(0, 3)], 1.0 + 0.2 * rng.random())[:int(0.2 * SR)], 0.002, 0.05) * 0.1, f_, 1.0, -0.5 + 1.0 * rng.random())
@@ -182,7 +227,7 @@ putf(SFX, lp(pitch(THUD, 0.85), 4000) * 0.24, 921, 1.0, -0.5); putf(SFX, knock(0
 for k, (f_, v) in enumerate(((922, 0.16), (926, 0.11), (931, 0.075), (938, 0.05), (946, 0.03))):
     putf(SFX, fade(pitch(METAL[k % 2], 1.1 + 0.08 * k), 0.001, 0.1) * v, f_, 1.0, -0.5 + 0.1 * k)
 # ---- S7 ---- (1000..1200): zoomies in the great room, then the sofa
-bed(birdbed(7, 3), 1000, 1200, 0.12, 0.6, 0.3, 0.5)
+putf(BED, lp(loon(42, 700, 1050), 1500), 1128, 0.05, 0.6)  # a loon outside, through the glass, as they settle
 r2 = np.random.default_rng(4)
 for f_ in np.arange(1002, 1124, 2.6): putf(SFX, nail_tick(0.07 + 0.05 * r2.random()), f_ + r2.random(), 1.0, -0.6 + 1.2 * r2.random())
 for f_ in np.arange(1004, 1124, 7.5): putf(SFX, tags(0.08), f_ + r2.integers(0, 3), 1.0, -0.5 + 1.0 * r2.random())
@@ -191,12 +236,16 @@ for f_ in (1136, 1150): putf(SFX, lp(LAND, 1800) * 0.3, f_, 1.0, 0.3); putf(SFX,
 rn = rms_norm(hp(loop(RAIN, 10.5, 7, 0.3), 700), 0.1); rn *= np.interp(np.arange(len(rn)) / SR, [0, 2.5, 6.5, 10.5], [1, 0.8, 0.25, 0.12])
 bed(rn, 1200, 1500, 0.42, 0.0, 0.2, 1.0)
 bed(windbed(10.5, 9), 1200, 1500, 0.16, -0.3, 0.3, 0.8)
-bed(birdbed(10.5, 4), 1230, 1500, 0.3, 0.4, 1.5, 0.8)
+bed(lakebed(9, 13), 1230, 1500, 0.2, 0.4, 2.0, 0.8)
+putf(BED, loon(43), 1248, 0.13, 0.35)                     # the loon, as the cat looks out over the lake
+for k, f_ in enumerate((1383, 1390, 1397, 1404, 1411, 1418)):  # down the wet stairs
+    putf(SFX, lp(fade(pitch(WOOD[k % 2], 0.78 + 0.06 * rng.random())[:int(0.16 * SR)], 0.002, 0.06), 2400) * 0.12, f_, 1.0, 0.1)
 bed(lakebed(4, 12), 1380, 1500, 0.4, 0.0, 1.5, 0.3)
 for f_ in np.arange(1204, 1500, 6.5):                     # drips off the eave and the pine boughs
     if rng.random() < 0.55: putf(SFX, drip(0.18 + 0.12 * rng.random()), f_ + rng.random() * 3, 1.0, -0.6 + 1.2 * rng.random())
-putf(SFX, cut(RIPPLES, 0.94, 1.12, 0.002, 0.06) * 0.22, 1348, 1.0, 0.0)  # the drop off the cat's chin lands
+putf(SFX, cut(RIPPLES, 0.94, 1.12, 0.002, 0.06) * 0.22, 1324, 1.0, 0.0)  # the drop off the cat's chin lands
 # ---- S8 ---- (1500..1900): the deck at dusk, then the dogs at the window
+putf(BED, loon(44, 760, 1140), 1534, 0.11, -0.35); putf(BED, loon(45, 700, 1020, 3.2), 1648, 0.06, 0.55)  # and another answers
 bed(lakebed(14, 11), 1470, 1900, 0.5, 0.0, 1.0, 0.2); bed(cricketbed(14, 7), 1470, 1900, 0.22, 0.1, 1.0, 0.2); bed(windbed(14, 14), 1500, 1900, 0.08, -0.2, 0.5, 0.2)
 for k, f_ in enumerate((1722, 1740, 1760)):  # paws on the sill, one dog after another
     for j in range(2): putf(SFX, paw_wood(0.12, 1.2), f_ + 3 + j * 2, 1.0, (-0.4, 0.0, 0.4)[k])
@@ -206,6 +255,7 @@ bed(lakebed(17, 21), 1900, 2400, 0.55, 0.0, 0.1, 0.5); bed(lakebed(17, 22, 1), 2
 cr = cricketbed(17, 23); cr *= np.interp(np.arange(len(cr)) / SR, [0, 6, 11, 17], [1, 1, 0.55, 0.4])
 bed(cr, 1900, 2400, 0.24, 0.2, 0.1, 0.5); bed(windbed(17, 24), 1900, 2400, 0.08, -0.2, 0.3, 0.5)
 putf(SFX, tags(0.05), 1916, 1.0, 0.1)                     # Wolfgang's ears go up
+putf(BED, loon(46, 780, 1170), 2168, 0.1, 0.45); putf(BED, loon(47, 720, 1060, 3.3), 2262, 0.055, -0.5)  # loons out on the water
 for f_ in (2150, 2230, 2262, 2330): putf(SFX, lp(pitch(LAKE[1][int(0.4 * SR):int(1.1 * SR)], 1.15), 3000) * 0.07, f_, 1.0, -0.4)  # the hull
 putf(SFX, lp(fade(SLOSH[0][int(0.3 * SR):int(1.6 * SR)], 0.05, 0.4), 5000) * 0.24, 2290, 1.0, 0.25)  # the blade goes in
 for f_ in (2324, 2331, 2336, 2344, 2356): putf(SFX, drip(0.16), f_, 1.0, 0.3)  # and drips as it lifts

@@ -58,3 +58,51 @@ function gambrelHouse(opt = {}) {
   s += `<path fill="none" stroke="#e8e6e0" stroke-width="5" d="M${W - 6} ${EAVE + 10} L${W - 6} 0 Q${W - 6} 14 ${W + 30} 16 L${W + 110} 18"/>`;
   return s;
 }
+
+/* a tall Muskoka white pine for the yard scenes: a long bare trunk, sparse flat tiers of needles high up */
+function yardPine(x, base, h, seed, col = '#34573f', colD = '#2a4434', trunk = '#5c5046') {
+  const q = rng(seed), k = h / 2600, tw = Math.max(3, 30 * k * 1.6);
+  let d = `<path fill="${trunk}" d="M${R2(x - tw)} ${base} L${R2(x - tw * 0.3)} ${R2(base - h)} L${R2(x + tw * 0.3)} ${R2(base - h)} L${R2(x + tw)} ${base}Z"/>`;
+  d += `<path fill="#000" opacity=".16" d="M${R2(x + tw * 0.2)} ${base} L${R2(x + tw * 0.05)} ${R2(base - h)} L${R2(x + tw * 0.3)} ${R2(base - h)} L${R2(x + tw)} ${base}Z"/>`;
+  const tiers = 6 + Math.floor(q() * 3);
+  for (let i = 0; i < tiers; i++) {
+    const t = i / tiers, y = base - h * (0.46 + 0.54 * t), side = i % 2 ? 1 : -1, len = (160 + q() * 260) * (1 - t * 0.55) * k;
+    d += `<path fill="${colD}" d="M${x} ${R2(y)} L${R2(x + side * len)} ${R2(y - (30 + q() * 40) * k)} L${R2(x + side * len)} ${R2(y - (18 + q() * 30) * k)} L${x} ${R2(y + 14 * k)}Z"/>`;
+    for (let j = 0; j < 4; j++) d += `<path fill="${j % 2 ? col : colD}" d="${blob(x + side * len * (0.3 + j * 0.24), y - (36 + q() * 24) * k, (95 + q() * 90) * k, (40 + q() * 24) * k, Math.floor(q() * 1e6), 16, 0.42)}"/>`;
+    if (q() > 0.4) d += `<path fill="${col}" d="${blob(x - side * len * 0.3, y - (20 + q() * 20) * k, (70 + q() * 50) * k, (32 + q() * 16) * k, Math.floor(q() * 1e6), 14, 0.42)}"/>`;
+  }
+  d += `<path fill="${col}" d="${blob(x, base - h - 10 * k, 60 * k, 50 * k, seed + 7, 14, 0.4)}"/>`;
+  return d;
+}
+
+/* a gravel two-track between two edge curves (cubic beziers, far end first): gravel, the grassy middle strip, speckle */
+function gravelDrive(defs, L, R, o = {}) {
+  const c = Object.assign({ far: '#9d927d', near: '#d3c6ac', mid: '#8d8f4e', needles: '#b0763e', speck: 60, seed: 77 }, o);
+  const bz = (P, t) => { const u = 1 - t; return [0, 1].map((i) => u * u * u * P[0][i] + 3 * u * u * t * P[1][i] + 3 * u * t * t * P[2][i] + t * t * t * P[3][i]); };
+  const N = 28, at = (t, u) => { const a = bz(L, t), b = bz(R, t); return [lerp(a[0], b[0], u), lerp(a[1], b[1], u)]; };
+  const strip = (u0, u1) => { let d = ''; for (let i = 0; i <= N; i++) { const p = at(i / N, u0); d += (i ? ' L' : 'M') + R2(p[0]) + ' ' + R2(p[1]); } for (let i = N; i >= 0; i--) { const p = at(i / N, u1); d += ' L' + R2(p[0]) + ' ' + R2(p[1]); } return d + 'Z'; };
+  let s = `<path d="${strip(0, 1)}" fill="${grad(defs, [[0, c.far], [1, c.near]])}"/>`;
+  s += `<path d="${strip(0.43, 0.57)}" fill="${c.mid}" opacity=".85"/>`;
+  s += `<path d="${strip(0.46, 0.54)}" fill="${c.needles}" opacity=".45"/>`;
+  s += `<path d="${strip(0, 0.05)}" fill="${c.needles}" opacity=".35"/><path d="${strip(0.95, 1)}" fill="${c.needles}" opacity=".35"/>`;
+  const q = rng(c.seed);
+  for (let i = 0; i < c.speck; i++) { const t = Math.sqrt(q()), u = q(); if (u > 0.4 && u < 0.6) continue; const p = at(t, u), r = 0.6 + t * 2.2; s += `<ellipse cx="${R2(p[0])}" cy="${R2(p[1])}" rx="${R2(r * 1.6)}" ry="${R2(r)}" fill="${q() > 0.5 ? '#efe6d2' : '#8c8270'}" opacity=".7"/>`; }
+  return s;
+}
+
+/* the inukshuk on the granite in front of the cottage (from the family's photos): two stone legs, a hip slab, a
+   stack, the long arm slab, the shoulders and the head. Drawn in centimetres, feet at y = 0, about 1.6 m tall. */
+function inukshukSVG(seed = 8201) {
+  const q = rng(seed), G = ['#8a8680', '#77736d', '#9a958d', '#6c6862', '#827d76'];
+  const slab = (x0, x1, y0, y1, k) => { const j = () => (q() - 0.5) * 5; return `<path fill="${G[k % G.length]}" d="M${R2(x0 + j())} ${R2(y0 + j() * 0.4)} L${R2(x1 + j())} ${R2(y0 + j() * 0.4)} L${R2(x1 - 2 + j())} ${R2(y1 + j() * 0.4)} L${R2(x0 + 2 + j())} ${R2(y1 + j() * 0.4)}Z"/><path fill="#000" opacity=".16" d="M${R2(x0)} ${R2(y0)} L${R2(x1)} ${R2(y0)} L${R2(x1)} ${R2(y0 - 3)} L${R2(x0)} ${R2(y0 - 3)}Z"/>`; };
+  let s = `<ellipse cx="0" cy="0" rx="62" ry="7" fill="#000" opacity=".22"/>`;
+  s += `<path fill="${G[3]}" d="M-38 0 L-12 0 L-10 -58 Q-22 -66 -34 -60Z"/><path fill="${G[1]}" d="M10 0 L38 0 L34 -56 Q22 -64 12 -58Z"/>`;
+  s += slab(-46, 48, -56, -74, 2) + slab(-36, 34, -74, -88, 0) + slab(-40, 42, -88, -104, 4) + slab(-30, 30, -104, -116, 1);
+  s += slab(-74, 76, -116, -132, 2) + slab(-34, 36, -132, -146, 0) + slab(-26, 24, -146, -158, 3) + slab(-18, 20, -158, -176, 4);
+  for (let i = 0; i < 16; i++) s += `<ellipse cx="${R2((q() - 0.5) * 90)}" cy="${R2(-10 - q() * 160)}" rx="${R2(2 + q() * 4)}" ry="${R2(1.2 + q() * 2)}" fill="${q() > 0.5 ? '#b9bca8' : '#6f7d4a'}" opacity=".8"/>`;
+  return s;
+}
+/* a Muskoka chair seen from the front, in centimetres, feet at y = 0 */
+function muskokaSVG(col) {
+  return `<path fill="${shade(col, -0.25)}" d="M-34 -2 L34 -2 L30 -40 L-30 -40Z"/><path fill="${col}" d="M-28 -40 L28 -40 L24 -98 Q0 -108 -24 -98Z"/>${[-14, 0, 14].map((k) => `<rect x="${k - 1}" y="-96" width="2" height="54" fill="${shade(col, -0.2)}"/>`).join('')}<path fill="${shade(col, 0.15)}" d="M-44 -46 L-26 -46 L-26 -40 L-44 -40Z M26 -46 L44 -46 L44 -40 L26 -40Z"/><path fill="${shade(col, -0.35)}" d="M-40 -40 L-36 0 L-31 0 L-34 -40Z M40 -40 L36 0 L31 0 L34 -40Z"/>`;
+}

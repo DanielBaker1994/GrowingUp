@@ -42,7 +42,7 @@ function draw(t) {
   }
   $('sc2').style.zIndex = 1; tear.style.zIndex = 2; $('sc3').style.zIndex = 3; $('fx').style.zIndex = 9;
   // down the stairs: the lake deck dissolves in under the last steps, landing on the first frame of the dusk scene
-  const DS = [CUTS[iS8] - 30, CUTS[iS8]];
+  const DS = [CUTS[iS8] - 16, CUTS[iS8]];  // the walk has landed by then, so this only blends the two drawings
   if (idx === iS7b && f >= DS[0]) {
     const k = E.inOutSine(seg(f, DS[0], DS[1]));
     $('sc8').style.display = 'block'; $('sc8').style.zIndex = 4; SCN[iS8].update(f - CUTS[iS8], f);

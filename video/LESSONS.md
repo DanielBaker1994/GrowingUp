@@ -32,6 +32,12 @@
 - RULE: In a billboard set seen across water, draw the water after everything behind the waterline, and clip any interior billboard to the projected window it is seen through.
   EVIDENCE: S9 showed pine bases and hills below the shoreline, and the room's pine wall behind the whole cottage, until both were done.
   GOES IN: references/motion-feel.md
+- RULE: A walk that dissolves onto a fixed frame must land (camera still, rigs matched) before the dissolve starts; keep the dissolve on the still tail only.
+  EVIDENCE: revision 5's S7b walk was still moving through the first half of a 30-frame dissolve and the three people doubled; landing at f1484 with a 16-frame dissolve removed it.
+  GOES IN: references/motion-feel.md
+- RULE: When a family says "no birds, a loon off in the distance", treat it as the sound palette for the whole film, not one cue: wind and water as the beds, a few far calls placed on quiet beats.
+  EVIDENCE: revision 5 removed every birdsong bed and placed seven distant loon calls instead.
+  GOES IN: references/audio.md
 
 ## Skill feedback
 - GOT IN THE WAY: Original mode assumes ElevenLabs and an image model exist. FIX: add a no-credentials fallback (code-drawn art + numpy synth, as in tools/make_audio.py).

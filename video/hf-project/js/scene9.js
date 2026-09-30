@@ -76,6 +76,8 @@ let S9; const initS9 = () => {
     const FLOOR = 5.6, SILL = 6.57, WTOP = 8.25, EAVE = 8.95, RIDGE = 10.9, RX = -0.1, WL = -6.6, WR = 6.4;
     const DWX0 = -2.4, DWX1 = 2.2; // the dogs' window
     const UDZ = 3.0, URT = 6.55; // upper deck front edge, rail top
+    const SDX0 = 6.6, SDX1 = 9.9, SDZ = 4.2; // the side deck in front of the wing (the cat's deck), its rail line
+    const SHELF = 4.4, SHZ0 = 3.0, SHZ1 = 5.0; // the granite shelf in front of the cottage, where the chairs and the inukshuk sit
     const LDY = 2.2, LDZ0 = 7.9, LDZ1 = 15.8, LDX0 = -5.5, LDX1 = 4.8; // lake deck
     const SHZ = 16.6; // waterline in front of the lake deck
     const KZ = 33.0, KX = -1.3; // Dad's seat in the kayak
@@ -172,32 +174,53 @@ let S9; const initS9 = () => {
     bb(0.02, [[-5.5, 7.4, 110], [3.9, 7.4, 150], [RX, 9.1, 180], [0, 7.6, 260], [8.0, 7.1, 150]].map(([x, y, rr]) => `<ellipse cx="${cm(x)}" cy="${cmy(y)}" rx="${rr * 1.6}" ry="${rr}" fill="${glowR}"/>`).join(''));
 
     const slopeG = plane();
+    const LICHEN = Array.from({ length: 22 }, (_, i) => { const q = rng(9700 + i); return [-5 + q() * 11.8, SHZ0 + 0.2 + q() * 1.7, 0.08 + q() * 0.22, ['#8f927f', '#a6a894', '#5f6f3c', '#6e7a48'][i % 4]]; });
     // ============ the upper deck ============
     const udFloor = plane();
-    let chairs = '';
-    [[-1.8, '#3b78b8'], [-0.7, '#4f9a5a'], [0.6, '#2f9a9a'], [1.7, '#3b78b8']].forEach(([x, col]) => { chairs += `<g transform="translate(${cm(x)} ${cmy(FLOOR)}) scale(0.86)"><path fill="${shade(col, -0.25)}" d="M-34 -2 L34 -2 L30 -40 L-30 -40Z"/><path fill="${col}" d="M-28 -40 L28 -40 L24 -98 Q0 -108 -24 -98Z"/>${[-14, 0, 14].map((k) => `<rect x="${k - 1}" y="-96" width="2" height="54" fill="${shade(col, -0.2)}"/>`).join('')}<path fill="${shade(col, 0.15)}" d="M-44 -46 L-26 -46 L-26 -40 L-44 -40Z M26 -46 L44 -46 L44 -40 L26 -40Z"/></g>`; });
-    bb(2.45, chairs);
     // rail with string lights, the cat cut-out on the top rail (mirrored: we see it from the lake side), the bear by the stairs
     const RL = '#7a6654', RD = '#5a4a3c', RH = '#9a8672';
-    let rlh = rect(WL - 0.2, URT - 0.06, WR + 0.2, URT + 0.02, RL) + rect(WL - 0.2, FLOOR + 0.06, WR + 0.2, FLOOR + 0.12, RD) + rect(WL - 0.25, FLOOR - 0.28, WR + 0.25, FLOOR, '#4a3f35');
-    for (let x = WL - 0.15; x < WR + 0.2; x += 0.13) rlh += rect(x, FLOOR + 0.1, x + 0.04, URT - 0.05, RL);
-    for (let x = WL - 0.2; x <= WR + 0.25; x += 1.8) rlh += rect(x - 0.05, FLOOR - 0.28, x + 0.05, URT + 0.06, RD);
-    // posts down to the rock
-    for (let x = WL; x <= WR; x += 2.6) rlh += rect(x - 0.07, FLOOR - 2.35, x + 0.07, FLOOR - 0.28, '#3e342b');
-    let wire = `M${cm(WL)} ${cmy(URT - 0.1)}`; const bulbs = [];
-    for (let x = WL; x < WR; x += 0.8) { wire += ` Q${cm(x + 0.4)} ${cmy(URT - 0.28)} ${cm(x + 0.8)} ${cmy(URT - 0.1)}`; bulbs.push(x + 0.4); }
-    rlh += `<path fill="none" stroke="#1d1a18" stroke-width="2" d="${wire}"/>` + bulbs.map((x) => `<ellipse cx="${cm(x)}" cy="${cmy(URT - 0.22)}" rx="10" ry="10" fill="${BULB}"/><circle cx="${cm(x)}" cy="${cmy(URT - 0.21)}" r="2.2" fill="#fff0cc"/>`).join('');
-    rlh += `<g transform="translate(${cm(-3.0)} ${cmy(URT + 0.02)}) scale(-0.42 0.42)"><path fill="#121014" d="M-40 0 L-38 -40 Q-40 -62 -34 -72 Q-44 -76 -50 -84 Q-58 -86 -60 -92 Q-58 -99 -52 -103 L-48 -118 L-38 -106 Q-32 -108 -28 -108 L-22 -120 L-20 -100 Q-18 -90 -16 -84 Q-4 -76 10 -60 Q30 -40 38 -20 Q44 -8 44 0Z"/><path fill="none" stroke="#121014" stroke-width="7" stroke-linecap="round" d="M38 -4 Q58 -8 62 -26 Q66 -44 56 -54 Q50 -60 56 -64"/></g>`;
+    const railRun = (x0, x1, postsTo) => {
+      let h = rect(x0, URT - 0.06, x1, URT + 0.02, RL) + rect(x0, FLOOR + 0.06, x1, FLOOR + 0.12, RD) + rect(x0 - 0.05, FLOOR - 0.28, x1 + 0.05, FLOOR, '#4a3f35');
+      for (let x = x0 + 0.05; x < x1; x += 0.13) h += rect(x, FLOOR + 0.1, x + 0.04, URT - 0.05, RL);
+      for (let x = x0; x <= x1 + 0.01; x += (x1 - x0) / Math.max(1, Math.round((x1 - x0) / 1.8))) h += rect(x - 0.05, FLOOR - 0.28, x + 0.05, URT + 0.06, RD);
+      // posts down to the rock
+      for (let x = x0 + 0.2; x <= x1; x += 2.6) h += rect(x - 0.07, postsTo, x + 0.07, FLOOR - 0.28, '#3e342b');
+      let wire = `M${cm(x0 + 0.2)} ${cmy(URT - 0.1)}`; const bulbs = [];
+      for (let x = x0 + 0.2; x < x1 - 0.1; x += 0.8) { wire += ` Q${cm(x + 0.4)} ${cmy(URT - 0.28)} ${cm(x + 0.8)} ${cmy(URT - 0.1)}`; bulbs.push(x + 0.4); }
+      return h + `<path fill="none" stroke="#1d1a18" stroke-width="2" d="${wire}"/>` + bulbs.map((x) => `<ellipse cx="${cm(x)}" cy="${cmy(URT - 0.22)}" rx="10" ry="10" fill="${BULB}"/><circle cx="${cm(x)}" cy="${cmy(URT - 0.21)}" r="2.2" fill="#fff0cc"/>`).join('');
+    };
+    let rlh = railRun(WL - 0.2, SDX0, SHELF);
     bb(UDZ, rlh);
-    bb(UDZ - 0.1, `<g transform="translate(${cm(WL + 0.25)} ${cmy(FLOOR)}) scale(0.34)"><path fill="#7d5a3a" d="M-86 0 L-86 -110 L86 -110 L86 0Z"/><ellipse cx="0" cy="-110" rx="86" ry="18" fill="#a17a52"/><path fill="#171516" d="M-54 -112 L-46 -180 Q-64 -230 -58 -280 Q-54 -320 -30 -346 Q-40 -360 -38 -372 Q-52 -382 -50 -392 L-40 -410 Q-30 -426 -8 -428 L2 -444 L14 -432 Q28 -426 34 -410 Q44 -396 40 -372 Q60 -340 62 -290 Q66 -240 50 -180 L58 -112Z"/></g>`);
+    // the carved bear on its stump by the wall, at the top of the side-deck stairs (as in the photos)
+    bb(1.2, `<g transform="translate(${cm(SDX0 + 0.45)} ${cmy(FLOOR)}) scale(0.34)"><path fill="#7d5a3a" d="M-86 0 L-86 -110 L86 -110 L86 0Z"/><ellipse cx="0" cy="-110" rx="86" ry="18" fill="#a17a52"/><path fill="#171516" d="M-54 -112 L-46 -180 Q-64 -230 -58 -280 Q-54 -320 -30 -346 Q-40 -360 -38 -372 Q-52 -382 -50 -392 L-40 -410 Q-30 -426 -8 -428 L2 -444 L14 -432 Q28 -426 34 -410 Q44 -396 40 -372 Q60 -340 62 -290 Q66 -240 50 -180 L58 -112Z"/></g>`);
+    // the side deck in front of the wing reaches further out; its rail carries the cat, at the far right end
+    let sdr = railRun(SDX0, SDX1, SHELF - 1.2);
+    sdr += `<g transform="translate(${cm(8.3)} ${cmy(URT + 0.02)}) scale(-0.42 0.42)"><path fill="#121014" d="M-40 0 L-38 -40 Q-40 -62 -34 -72 Q-44 -76 -50 -84 Q-58 -86 -60 -92 Q-58 -99 -52 -103 L-48 -118 L-38 -106 Q-32 -108 -28 -108 L-22 -120 L-20 -100 Q-18 -90 -16 -84 Q-4 -76 10 -60 Q30 -40 38 -20 Q44 -8 44 0Z"/><path fill="none" stroke="#121014" stroke-width="7" stroke-linecap="round" d="M38 -4 Q58 -8 62 -26 Q66 -44 56 -54 Q50 -60 56 -64"/></g>`;
+    bb(SDZ, sdr);
     // the big pine at the east end of the upper deck (the one over the cat's rail)
-    bb(3.6, whitePine(cm(7.8), cmy(3.5), 2300, 9031, '#2f3d39', '#2a2623'));
+    bb(3.6, whitePine(cm(10.7), cmy(3.5), 2300, 9031, '#2f3d39', '#2a2623'));
+    // the short flight from the side deck down onto the shelf, running toward the chairs: treads (drawn per frame),
+    // then its side and the handrail with the lights carried down it
+    const SSX1 = SDX0, SSX0 = 5.0, SSN = 6, SSZ0 = 3.2, SSZ1 = SDZ;
+    const sdStairs = plane();
+    { const rise = (FLOOR - SHELF) / SSN, run = (SSX1 - SSX0) / SSN; let pr = `M${cm(SSX1)} ${cmy(FLOOR)}`;
+      for (let i = 0; i < SSN; i++) pr += ` L${cm(SSX1 - i * run)} ${cmy(FLOOR - (i + 1) * rise)} L${cm(SSX1 - (i + 1) * run)} ${cmy(FLOOR - (i + 1) * rise)}`;
+      pr += ` L${cm(SSX0)} ${cmy(SHELF)} L${cm(SSX1)} ${cmy(SHELF - 0.05)}Z`;
+      let hr = `<path fill="#5c4d3f" d="${pr}"/><path fill="none" stroke="#7a6a58" stroke-width="3" d="M${cm(SSX1)} ${cmy(FLOOR - 0.02)} L${cm(SSX0)} ${cmy(SHELF - 0.02)}"/>`;
+      const top = (x) => lerp(SHELF + 0.95, URT, (x - SSX0) / (SSX1 - SSX0));
+      for (let i = 0; i <= 6; i++) { const x = lerp(SSX0 + 0.08, SSX1 - 0.05, i / 6), y0 = lerp(SHELF, FLOOR, (x - SSX0) / (SSX1 - SSX0)); hr += rect(x - 0.02, y0, x + 0.02, top(x) - 0.04, '#7a6654'); }
+      hr += `<path fill="#7a6654" d="M${cm(SSX0 - 0.06)} ${cmy(top(SSX0) + 0.02)} L${cm(SSX1)} ${cmy(URT + 0.02)} L${cm(SSX1)} ${cmy(URT - 0.06)} L${cm(SSX0 - 0.06)} ${cmy(top(SSX0) - 0.06)}Z"/>` + rect(SSX0 - 0.1, SHELF, SSX0, top(SSX0) + 0.08, '#5a4a3c');
+      hr += `<path fill="none" stroke="#1d1a18" stroke-width="2" d="M${cm(SSX1)} ${cmy(URT - 0.1)} Q${cm((SSX0 + SSX1) / 2)} ${cmy(top((SSX0 + SSX1) / 2) - 0.32)} ${cm(SSX0)} ${cmy(top(SSX0) - 0.12)}"/>`;
+      [0.3, 0.7].forEach((t) => { const x = lerp(SSX0, SSX1, t); hr += `<ellipse cx="${cm(x)}" cy="${cmy(top(x) - 0.3)}" rx="10" ry="10" fill="${BULB}"/><circle cx="${cm(x)}" cy="${cmy(top(x) - 0.29)}" r="2.2" fill="#fff0cc"/>`; });
+      bb(SSZ1 + 0.01, hr); }
     // ============ rock and junipers between the two decks, the inukshuk ============
-    let rk = `<path fill="#5c5a58" d="M${cm(-16)} ${cmy(0)} L${cm(-16)} ${cmy(3.4)} Q${cm(-9)} ${cmy(4.4)} ${cm(-6.4)} ${cmy(4.9)} L${cm(7)} ${cmy(4.9)} Q${cm(11)} ${cmy(4.2)} ${cm(18)} ${cmy(2.6)} L${cm(18)} ${cmy(0)}Z"/>`;
+    let rk = `<path fill="#5c5a58" d="M${cm(-16)} ${cmy(0)} L${cm(-16)} ${cmy(3.4)} Q${cm(-9)} ${cmy(4.4)} ${cm(-6.4)} ${cmy(4.9)} Q${cm(-5.6)} ${cmy(4.45)} ${cm(-5.0)} ${cmy(SHELF)} L${cm(7)} ${cmy(SHELF)} Q${cm(11)} ${cmy(4.0)} ${cm(18)} ${cmy(2.6)} L${cm(18)} ${cmy(0)}Z"/>`;
     for (let i = 0; i < 40; i++) { const x = -15 + r() * 32, y = 0.4 + r() * 4.2; rk += `<path fill="${['#6e6c6a', '#7c7976', '#57534f', '#86827c'][Math.floor(r() * 4)]}" d="${blob(cm(x), cmy(y), 40 + r() * 90, 18 + r() * 30, 9040 + i, 12, 0.2)}"/>`; }
     for (let i = 0; i < 26; i++) { const x = -15 + r() * 32, y = 0.8 + r() * 3.8; rk += `<path fill="${['#3f5a3a', '#4e6a40', '#35503a', '#5d7a44'][i % 4]}" d="${blob(cm(x), cmy(y), 60 + r() * 80, 26 + r() * 20, 9070 + i, 18, 0.45)}"/>`; }
     for (let i = 0; i < 10; i++) { const x = -14 + r() * 30, y = 1 + r() * 3.4; rk += `<path fill="#d9c23a" opacity=".85" d="${blob(cm(x), cmy(y), 22, 8, 9100 + i, 12, 0.4)}"/>`; }
-    rk += `<g transform="translate(${cm(-7.2)} ${cmy(2.7)}) scale(0.5)"><path fill="#4a4c50" d="${blob(0, -40, 46, 42, 8201, 12, 0.14)}"/><path fill="#56585c" d="M-70 -104 L66 -110 L60 -84 L-64 -80Z"/><path fill="#4f5156" d="M-50 -150 L48 -154 L44 -110 L-46 -106Z"/><path fill="#5d5f63" d="M-80 -180 L74 -186 L70 -156 L-76 -150Z"/><path fill="#4a4c50" d="M-40 -216 L40 -222 L38 -186 L-38 -182Z"/><path fill="#5a5c60" d="M-26 -246 L24 -250 L22 -222 L-24 -218Z"/></g>`;
+    // on the shelf, left to right from the lake: green, blue, brown and red chairs, then the inukshuk by the stairs
+    bb(3.9, [[0.3, '#4f9a5a'], [1.2, '#3b78b8'], [2.1, '#6b4a36'], [3.0, '#b8302c']].map(([x, col]) => `<g transform="translate(${cm(x)} ${cmy(SHELF)}) scale(0.9)">${muskokaSVG(col)}</g>`).join(''));
+    bb(4.75, `<g transform="translate(${cm(3.9)} ${cmy(SHELF)})">${inukshukSVG()}</g>`);
     bb(5.0, rk);
     const stairsG = plane();
     // ============ the lake deck ============
@@ -279,8 +302,12 @@ let S9; const initS9 = () => {
       slopeG.innerHTML = face([[-22, 4.25, -0.2], [24, 4.25, -0.2], [24, 2.0, 8.0], [-22, 2.0, 8.0]], '#4f4c49') + face([[-22, 2.0, 8.0], [24, 2.0, 8.0], [24, 0, 16.7], [-22, 0, 16.7]], '#46433f');
       // upper deck floor
       udFloor.innerHTML = face([[WL - 0.2, FLOOR, 0], [WR + 0.2, FLOOR, 0], [WR + 0.2, FLOOR, UDZ], [WL - 0.2, FLOOR, UDZ]], '#6f6254') + (() => { let s = ''; for (let i = 1; i < 12; i++) { const z = (i / 12) * UDZ; s += face([[WL - 0.2, FLOOR + 0.001, z], [WR + 0.2, FLOOR + 0.001, z], [WR + 0.2, FLOOR + 0.001, z + 0.02], [WL - 0.2, FLOOR + 0.001, z + 0.02]], '#5a4f44'); } return s; })();
+      udFloor.innerHTML += face([[SDX0, FLOOR, -0.3], [SDX1, FLOOR, -0.3], [SDX1, FLOOR, SDZ], [SDX0, FLOOR, SDZ]], '#6f6254') + (() => { let s = ''; for (let i = 1; i < 15; i++) { const z = -0.3 + (i / 15) * (SDZ + 0.3); s += face([[SDX0, FLOOR + 0.001, z], [SDX1, FLOOR + 0.001, z], [SDX1, FLOOR + 0.001, z + 0.02], [SDX0, FLOOR + 0.001, z + 0.02]], '#5a4f44'); } return s; })();
+      { const rise = (FLOOR - SHELF) / SSN, run = (SSX1 - SSX0) / SSN; let s = ''; for (let i = 0; i < SSN; i++) { const y = FLOOR - (i + 1) * rise, xa = SSX1 - i * run, xb = xa - run; s += face([[xb, y, SSZ0], [xa, y, SSZ0], [xa, y, SSZ1], [xb, y, SSZ1]], i % 2 ? '#7a6a58' : '#716251') + face([[xa, y, SSZ0], [xa, y + rise, SSZ0], [xa, y + rise, SSZ1], [xa, y, SSZ1]], '#4e4238'); } sdStairs.innerHTML = s; }
+      // the granite shelf the chairs and the inukshuk stand on, lichen on it
+      slopeG.innerHTML += face([[-5.2, SHELF, SHZ0], [7.0, SHELF, SHZ0], [7.0, SHELF, SHZ1], [-5.2, SHELF, SHZ1]], '#5d5a56') + LICHEN.map(([x, z, w, c]) => face([[x - w, SHELF + 0.002, z - w * 0.4], [x + w, SHELF + 0.002, z - w * 0.4], [x + w * 0.8, SHELF + 0.002, z + w * 0.4], [x - w * 0.8, SHELF + 0.002, z + w * 0.4]], c)).join('');
       // the stairs down to the lake deck, at its west end
-      { let s = ''; const n = 18, x0 = -6.4, x1 = -5.3; for (let i = 0; i < n; i++) { const y = FLOOR - (i + 1) * (FLOOR - LDY) / n, z0 = UDZ + i * 0.27, z1 = z0 + 0.27; s += face([[x0, y + (FLOOR - LDY) / n, z0], [x1, y + (FLOOR - LDY) / n, z0], [x1, y, z0], [x0, y, z0]], '#4e4238') + face([[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], i % 2 ? '#7a6a58' : '#716251'); } s += face([[x1 + 0.02, FLOOR + 0.95, UDZ], [x1 + 0.08, FLOOR + 0.95, UDZ], [x1 + 0.08, LDY + 0.95, UDZ + n * 0.27], [x1 + 0.02, LDY + 0.95, UDZ + n * 0.27]], RL) + face([[x1, FLOOR, UDZ], [x1 + 0.05, FLOOR, UDZ], [x1 + 0.05, LDY - 0.3, UDZ + n * 0.27], [x1, LDY - 0.3, UDZ + n * 0.27]], '#54473b'); stairsG.innerHTML = s; }
+      { let s = ''; const n = 18, x0 = -6.4, x1 = -5.3; for (let i = 0; i < n; i++) { const y = FLOOR - (i + 1) * (FLOOR - LDY) / n, z0 = UDZ + i * 0.27, z1 = z0 + 0.27; s += face([[x0, y + (FLOOR - LDY) / n, z0], [x1, y + (FLOOR - LDY) / n, z0], [x1, y, z0], [x0, y, z0]], '#4a4845') + face([[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], ['#7b7873', '#6e6b67', '#85817b'][i % 3]); } for (let k = 0; k <= 4; k++) { const z = UDZ + (k / 4) * n * 0.27, yb = FLOOR - (k / 4) * (FLOOR - LDY); s += face([[x1 + 0.03, yb - 0.1, z], [x1 + 0.1, yb - 0.1, z], [x1 + 0.1, yb + 0.95, z], [x1 + 0.03, yb + 0.95, z]], '#8a6e4e'); } s += face([[x1 + 0.02, FLOOR + 0.95, UDZ], [x1 + 0.1, FLOOR + 0.95, UDZ], [x1 + 0.1, LDY + 0.95, UDZ + n * 0.27], [x1 + 0.02, LDY + 0.95, UDZ + n * 0.27]], '#a0825c') + face([[x1 + 0.02, FLOOR + 0.5, UDZ], [x1 + 0.1, FLOOR + 0.5, UDZ], [x1 + 0.1, LDY + 0.5, UDZ + n * 0.27], [x1 + 0.02, LDY + 0.5, UDZ + n * 0.27]], '#8a6e4e') + face([[x1, FLOOR, UDZ], [x1 + 0.05, FLOOR, UDZ], [x1 + 0.05, LDY - 0.3, UDZ + n * 0.27], [x1, LDY - 0.3, UDZ + n * 0.27]], '#54473b'); stairsG.innerHTML = s; }
       // lake deck floor and its side rails
       { let s = face([[LDX0, LDY, LDZ0], [LDX1, LDY, LDZ0], [LDX1, LDY, LDZ1], [LDX0, LDY, LDZ1]], '#9a8a72'); for (let i = 1; i < 26; i++) { const z = LDZ0 + (i / 26) * (LDZ1 - LDZ0); s += face([[LDX0, LDY + 0.001, z], [LDX1, LDY + 0.001, z], [LDX1, LDY + 0.001, z + 0.025], [LDX0, LDY + 0.001, z + 0.025]], '#7a6c58'); } ldFloor.innerHTML = s;
         let sd = ''; [LDX0, LDX1].forEach((X) => { sd += face([[X, LDY, LDZ0 + 1], [X, LDY, LDZ1], [X, LDY + 0.98, LDZ1], [X, LDY + 0.98, LDZ0 + 1]], '#c9ccd0', 'opacity=".28"') + face([[X - 0.05, LDY + 0.96, LDZ0 + 1], [X + 0.05, LDY + 0.96, LDZ0 + 1], [X + 0.05, LDY + 1.04, LDZ1], [X - 0.05, LDY + 1.04, LDZ1]], '#a47a52') + face([[X, 0.05, LDZ0 + 0.5], [X, 0.05, LDZ1], [X, LDY, LDZ1], [X, LDY, LDZ0 + 0.5]], '#977c5a'); }); ldSides.innerHTML = sd; }

@@ -14,7 +14,7 @@ tonejs-instruments project (npm packages `tonejs-instrument-piano-mp3`, `tonejs-
 
 ## Sound credits
 The sound effects are recordings (snow and wood footsteps, a door creak for the ramp hinge, lake lapping, rain, crickets,
-birdsong, wind, water drips, a paddle), from openly licensed game and education packages: Minetest Game, Lugaru,
-Scratch 1.4, The Battle for Wesnoth, LinCity-NG, Crossfire and Tux Paint. The files, their authors and licenses
-(CC0, CC BY 3.0, CC BY-SA 3.0, GPL-2+) are listed in `hf-project/assets/sfx/CREDITS.md`. The two lawn mowers are the
-only synthesized sounds left.
+bees, wind, water drips, a paddle), from openly licensed game and education packages: Minetest Game, Lugaru,
+Scratch 1.4, The Battle for Wesnoth, MegaGlest, LinCity-NG, Crossfire and Tux Paint. The files, their authors and licenses
+(CC0, CC BY 3.0, CC BY-SA 3.0, GPL-2+) are listed in `hf-project/assets/sfx/CREDITS.md`. The two lawn mowers and the
+distant loons are synthesized: no usable open recording of either was reachable here.

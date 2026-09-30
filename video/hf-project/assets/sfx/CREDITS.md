@@ -2,8 +2,9 @@
 
 Every sound effect in the film is a recording from one of the files below, trimmed, pitched, filtered and placed by
 `tools/make_audio.py`. The files are kept exactly as they ship in the named Debian/Ubuntu package (renamed only with a
-source prefix). The two lawn mowers in the mowing scene are the only synthesized sounds: no usable open recording was
-available here.
+source prefix). Two sounds are synthesized, because no usable open recording of either was reachable here: the two
+lawn mowers in the mowing scene, and the distant loons (a wail built from a sliding tone with a break to the high
+note, a little vibrato and breath, then air absorption and a long echo off the water).
 
 | File(s) | Used for | From | Author | License |
 |---|---|---|---|---|
@@ -19,11 +20,11 @@ available here.
 | `scratch_Crickets.wav` | crickets at dusk | scratch (Scratch 1.4 media library) | Massachusetts Institute of Technology | CC BY-SA 3.0 |
 | `lugaru_Wind.ogg` | wind over the lake and in the pines | lugaru-data | Wolfire Games | CC BY-SA 3.0 |
 | `lugaru_Land.ogg`, `lugaru_Thud.ogg` | the dogs landing on the sofa, the SOLD plank | lugaru-data | Wolfire Games | CC BY-SA 3.0 |
-| `wesnoth_birds1-3.ogg` | birdsong | wesnoth-1.16-data | The Battle for Wesnoth project | GPL-2+ |
 | `wesnoth_ship.ogg` | wood and water under the dock | wesnoth-1.16-data | The Battle for Wesnoth project | GPL-2+ |
 | `wesnoth_gold.ogg` | collar tags (short slices of a coin jingle) | wesnoth-1.16-data | The Battle for Wesnoth project | GPL-2+ |
 | `lincity_ParklandLake1-2.wav` | lake lapping | lincity-ng-data | the LinCity-NG project | GPL-2+ |
 | `crossfire_Tear.wav` | the paper tear between the deck and the dock | crossfire-client | the Crossfire Development Team | GPL-2+ |
+| `megaglest_bee1-4.wav` | the bees chasing the woman in green across the back of the farm lawn | megaglest-data (megapack, Indian faction beehive) | Titus Tscharntke and Philipp Tscharntke | CC BY-SA 3.0 |
 | `tuxpaint_rain.ogg` | the rain passing over the deck | tuxpaint-plugins-default | Bill Kendrick and the Tux Paint contributors | GPL-2+ |
 
 License texts: CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/ · CC BY 3.0 https://creativecommons.org/licenses/by/3.0/ ·

@@ -27,7 +27,7 @@ function makePerson(parent, o) {
     `<path fill="${c.coat}" d="M-23 -150 Q0 -161 23 -150 L29 -80 Q0 -73 -29 -80Z"/>` +
     `<path fill="${shade(c.coat, -0.22)}" d="M-29 -80 Q0 -73 29 -80 L29.5 -70 Q0 -63 -29.5 -70Z"/>` +
     (c.scarf ? `<rect fill="${c.scarf}" x="-13" y="-163" width="28" height="11" rx="5"/>` : '') +
-    `</g><g class="hd">${hairBack}<circle fill="${c.skin}" cx="4" cy="${hy + 1}" r="${hr - 1}"/>` +
+    `</g><g class="hd">${c.long ? `<path fill="${c.hair}" d="M${-hr - 2} ${hy - 4} Q${-hr - 9} ${hy + 20} ${-hr - 3} ${hy + 34} L${-3} ${hy + 30} Q${3} ${hy + 14} ${2} ${hy}Z"/>` : ''}${hairBack}<circle fill="${c.skin}" cx="4" cy="${hy + 1}" r="${hr - 1}"/>` +
     `<path fill="${c.skin}" d="M${hr + 1} ${hy} L${hr + 7} ${hy + 5} L${hr + 1} ${hy + 8}Z"/>` +
     `<circle fill="#3a2a22" cx="${hr - 3}" cy="${hy}" r="1.7"/>` +
     hat + `</g>` +
