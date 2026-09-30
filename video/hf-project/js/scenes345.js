@@ -180,11 +180,19 @@ let S5; const initS5 = () => {
     const sign = layer('sign');
     sign.innerHTML =
       `<ellipse cx="330" cy="1006" rx="90" ry="10" fill="#000" opacity=".3"/>` +
-      `<rect x="318" y="600" width="24" height="410" fill="#8a6a48"/><rect x="318" y="600" width="8" height="410" fill="#a58259"/>` +
-      `<rect x="318" y="600" width="270" height="18" fill="#8a6a48"/>` +
+      `<rect x="318" y="466" width="24" height="544" fill="#8a6a48"/><rect x="318" y="466" width="8" height="544" fill="#a58259"/>` +
+      `<rect x="318" y="600" width="270" height="18" fill="#8a6a48"/><rect x="318" y="466" width="330" height="16" fill="#8a6a48"/><rect x="318" y="466" width="330" height="5" fill="#a58259"/>` +
+      // the family's own carved plank, hung above the agent's sign: WHITE PINES in gold on rust-brown, scrolled ends
+      `<g id="s5wp"><line x1="404" x2="404" y1="482" y2="506" stroke="#3a3430" stroke-width="3"/><line x1="556" x2="556" y1="482" y2="506" stroke="#3a3430" stroke-width="3"/>` +
+      `<path fill="#6f3a1e" d="M336 542 Q336 506 372 506 L588 506 Q624 506 624 542 Q624 566 596 574 Q560 580 540 590 Q506 602 480 588 Q454 602 420 590 Q400 580 364 574 Q336 566 336 542Z"/>` +
+      `<path fill="none" stroke="#c98a4a" stroke-width="3" d="M346 542 Q346 516 374 516 L586 516 Q614 516 614 542 Q614 560 592 565 Q556 570 538 580 Q506 592 480 580 Q454 592 422 580 Q404 570 368 565 Q346 560 346 542Z"/>` +
+      `<path fill="none" stroke="#c98a4a" stroke-width="4" stroke-linecap="round" d="M352 552 q-18 4 -14 22 q4 12 16 6 q8 -6 2 -12 M608 552 q18 4 14 22 q-4 12 -16 6 q-8 -6 -2 -12"/>` +
+      `<path id="s5arc" fill="none" d="M352 554 Q480 528 608 554"/><text font-family="Fraunces" font-weight="700" font-size="27" fill="#e8bd70" letter-spacing="2.5" text-anchor="middle"><textPath href="#s5arc" startOffset="50%">WHITE PINES</textPath></text>` +
+      `<path fill="#e8bd70" d="M456 572 Q480 584 504 572 Q480 578 456 572Z"/>` +
+      `<line x1="344" x2="560" y1="466" y2="466" stroke="#fff2c8" stroke-width="0"/>` + [360, 420, 480, 540, 600].map((x) => `<circle cx="${x}" cy="486" r="3.4" fill="#ffe7a0"/>`).join('') + `</g>` +
       `<g id="s5board"><rect x="360" y="616" width="240" height="180" fill="#fdfaf2" stroke="#2f5a3a" stroke-width="9"/><text x="480" y="672" text-anchor="middle" font-family="Fraunces" font-weight="400" font-size="34" fill="#2f5a3a" letter-spacing="3">FOR</text><text x="480" y="742" text-anchor="middle" font-family="Fraunces" font-weight="400" font-size="66" fill="#b8402f" letter-spacing="2">SALE</text><rect x="400" y="760" width="160" height="4" fill="#2f5a3a"/><line x1="368" x2="368" y1="600" y2="616" stroke="#555" stroke-width="3"/><line x1="592" x2="592" y1="600" y2="616" stroke="#555" stroke-width="3"/></g>` +
       `<g id="s5sold"><line x1="392" x2="392" y1="796" y2="826" stroke="#666" stroke-width="3"/><line x1="568" x2="568" y1="796" y2="826" stroke="#666" stroke-width="3"/><rect x="360" y="822" width="240" height="84" rx="4" fill="#b8402f" stroke="#fdfaf2" stroke-width="5"/><text x="480" y="880" text-anchor="middle" font-family="Fraunces" font-weight="400" font-size="58" fill="#fdfaf2" letter-spacing="10">SOLD</text></g>`;
-    const board = $('s5board'), sold = $('s5sold');
+    const board = $('s5board'), sold = $('s5sold'), wp = $('s5wp');
     const fg = layer('fg'); let g = ''; const rg = rng(421);
     for (let i = 0; i < 22; i++) { const x = i * 120 - 100 + rg() * 40, h = 50 + rg() * 70; let d = `M${x - 28} 1140`; for (let k = 0; k < 6; k++) d += ` L${R2(x - 28 + k * 11 + rg() * 5)} ${R2(1140 - h * (0.4 + rg() * 0.6))} L${R2(x - 22 + k * 11)} 1140`; g += `<path d="${d}Z" fill="#2c5a2c"/>`; }
     ins(fg, g);
@@ -199,6 +207,7 @@ let S5; const initS5 = () => {
       const drop = spring(f - 22, 0.42, 0.22), sw = Math.sin((f - 22) * 0.34) * Math.exp(-(f - 22) * 0.05) * 15 * (f > 22 ? 1 : 0);
       sold.setAttribute('transform', `translate(0 ${R2(-160 * (1 - drop) * (f < 22 ? 1 : 1))}) rotate(${R2(sw)} 480 796)`);
       sold.style.opacity = f < 22 ? 0 : 1;
+      wp.setAttribute('transform', `rotate(${R2(Math.sin(f * 0.09 + 1) * 0.6 + (f > 22 ? Math.sin((f - 22) * 0.34) * Math.exp(-(f - 22) * 0.06) * 0.8 : 0))} 480 466)`);
       board.setAttribute('transform', `rotate(${R2(Math.sin(f * 0.11) * 0.5 + (f > 22 ? Math.sin((f - 22) * 0.34) * Math.exp(-(f - 22) * 0.06) * 1.4 : 0))} 480 616)`);
     }
     const fx = (ctx, f) => { leafFall(ctx, f, 10, 71, ['#d9a23a', '#c8752a', '#e0b84a'], 8); motes(ctx, f, 18, 31, '#fff2c8', 2, 0.6); };

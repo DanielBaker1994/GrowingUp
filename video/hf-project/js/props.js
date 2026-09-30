@@ -106,3 +106,26 @@ function inukshukSVG(seed = 8201) {
 function muskokaSVG(col) {
   return `<path fill="${shade(col, -0.25)}" d="M-34 -2 L34 -2 L30 -40 L-30 -40Z"/><path fill="${col}" d="M-28 -40 L28 -40 L24 -98 Q0 -108 -24 -98Z"/>${[-14, 0, 14].map((k) => `<rect x="${k - 1}" y="-96" width="2" height="54" fill="${shade(col, -0.2)}"/>`).join('')}<path fill="${shade(col, 0.15)}" d="M-44 -46 L-26 -46 L-26 -40 L-44 -40Z M26 -46 L44 -46 L44 -40 L26 -40Z"/><path fill="${shade(col, -0.35)}" d="M-40 -40 L-36 0 L-31 0 L-34 -40Z M40 -40 L36 0 L31 0 L34 -40Z"/>`;
 }
+/* a person sitting in a Muskoka chair, in the chair's own units (feet at y = 0, seat at y = -40). view 'front' faces us
+   (S9, from the lake); view 'back' shows only the head and shoulders above the chair back (S7b, walking down from the
+   cottage). lean tips the head toward the neighbour (deg). */
+function sitterSVG(o) {
+  const c = Object.assign({ view: 'front', top: '#4f7a6a', pants: '#3a3f4d', skin: '#e2b08e', hair: '#5a3d28', long: false, pony: false, hat: null, lean: 0, shoe: '#e6e3dd' }, o);
+  const eyes = `<circle cx="-4.2" cy="-114" r="1.5" fill="#2a1d17"/><circle cx="4.2" cy="-114" r="1.5" fill="#2a1d17"/><path fill="none" stroke="#9a5a44" stroke-width="1.4" stroke-linecap="round" d="M-3.4 -107.5 Q0 -105.5 3.4 -107.5"/><ellipse cx="-7" cy="-109" rx="2.6" ry="1.7" fill="#e08a7a" opacity=".35"/><ellipse cx="7" cy="-109" rx="2.6" ry="1.7" fill="#e08a7a" opacity=".35"/>`;
+  const hatS = c.hat ? `<path fill="${c.hat}" d="M-13 -119 Q0 -138 13 -119Z"/><rect x="-14" y="-123" width="28" height="6" rx="3" fill="${shade(c.hat, -0.2)}"/>` : '';
+  if (c.view === 'back') {
+    const hairB = c.long ? `<path fill="${c.hair}" d="M-13 -116 Q-16 -96 -11 -90 L11 -90 Q16 -96 13 -116Z"/>` : '';
+    return `<g transform="rotate(${c.lean} 0 -96)"><rect x="-22" y="-100" width="44" height="14" rx="6" fill="${c.top}"/><rect x="-5" y="-106" width="10" height="9" fill="${shade(c.skin, -0.08)}"/>` +
+      `<circle cx="-11.5" cy="-113" r="3.6" fill="${c.skin}"/><circle cx="11.5" cy="-113" r="3.6" fill="${c.skin}"/>${hairB}<circle cx="0" cy="-114" r="12" fill="${c.hair}"/>` +
+      (c.pony ? `<path fill="${c.hair}" d="M-3 -116 Q9 -110 6 -92 Q1 -86 -2 -94 Q2 -104 -3 -110Z"/>` : '') + hatS + `</g>`;
+  }
+  const leg = (s) => `<path fill="${c.pants}" d="M${s * 16 - 6} -47 L${s * 16 + 6} -47 L${s * 15 + 5} -8 L${s * 15 - 5} -8Z"/><path fill="${shade(c.pants, -0.22)}" d="M${s * 15 - 5} -16 L${s * 15 + 5} -16 L${s * 15 + 5} -8 L${s * 15 - 5} -8Z"/><ellipse cx="${s * 15}" cy="-4.5" rx="9" ry="4.6" fill="${c.shoe}"/>`;
+  const arm = (s) => `<path fill="none" stroke="${shade(c.top, -0.1)}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="M${s * 22} -90 L${s * 27} -66 L${s * 22} -52"/><circle cx="${s * 22}" cy="-49" r="4.6" fill="${c.skin}"/>`;
+  const hairF = c.long ? `<path fill="${c.hair}" d="M-11 -120 Q-19 -118 -18 -100 Q-18 -90 -13 -86 L-8 -89 Q-11 -100 -10.5 -110Z M11 -120 Q19 -118 18 -100 Q18 -90 13 -86 L8 -89 Q11 -100 10.5 -110Z"/>` : '';
+  return leg(-1) + leg(1) + `<ellipse cx="-16" cy="-45" rx="9" ry="5.5" fill="${shade(c.pants, 0.12)}"/><ellipse cx="16" cy="-45" rx="9" ry="5.5" fill="${shade(c.pants, 0.12)}"/>` +
+    `<path fill="${c.pants}" d="M-22 -44 L22 -44 L21 -38 L-21 -38Z"/>` +
+    `<path fill="${c.top}" d="M-21 -42 L21 -42 L23 -92 Q0 -99 -23 -92Z"/><path fill="${shade(c.top, -0.15)}" d="M-21 -46 L21 -46 L21 -42 L-21 -42Z"/>` + arm(-1) + arm(1) +
+    `<g transform="rotate(${c.lean} 0 -96)"><rect x="-5" y="-106" width="10" height="12" fill="${shade(c.skin, -0.08)}"/>${hairF}<circle cx="-11.5" cy="-113" r="3.6" fill="${c.skin}"/><circle cx="11.5" cy="-113" r="3.6" fill="${c.skin}"/>` +
+    `<circle cx="0" cy="-114" r="12" fill="${c.long || c.hat ? c.skin : c.skin}"/>` +
+    `<path fill="${c.hair}" d="M-12.5 -116 Q-8 -128 2 -127 Q11 -127 12.5 -116 Q6 -121 -2 -120 Q-9 -120 -12.5 -116Z"/>` + eyes + hatS + `</g>`;
+}

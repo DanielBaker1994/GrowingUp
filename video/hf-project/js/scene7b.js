@@ -208,6 +208,8 @@ let S7b; const initS7b = () => {
     // on the shelf: the inukshuk at the foot of the stairs, then red, brown, blue and green chairs toward the far end
     const INUK = inukshukSVG(); item(-3.9, SHELF + 0.8, 4.75, () => card(-3.9, SHELF, 4.75, INUK));
     [[-3.0, '#b8302c'], [-2.1, '#6b4a36'], [-1.2, '#3b78b8'], [-0.3, '#4f9a5a']].forEach(([x, col]) => { const sv = `<g transform="scale(0.9)">${muskokaSVG(col)}</g>`; item(x, SHELF + 0.4, 3.9, () => card(x, SHELF, 3.9, sv)); });
+    // the two sitting in the brown and blue chairs: from behind, only heads and shoulders above the chair backs
+    [[-2.1, { top: '#e9e4d6', hair: '#7a5a3c', long: true, skin: '#e6bf9c', lean: 4 }], [-1.2, { top: '#7a8f4e', hair: '#4a3a2e', lean: -4 }]].forEach(([x, o]) => { const sv = `<g transform="scale(0.9)">${sitterSVG(Object.assign({ view: 'back' }, o))}</g>`; item(x, SHELF + 0.45, 3.95, () => card(x, SHELF, 3.95, sv)); });
     // the stone steps down the rock at the far end, with their wooden handrail on posts
     { const n = 18, x0 = 5.3, x1 = 6.4; for (let i = 0; i < n; i++) { const y = FLOOR - (i + 1) * (FLOOR - LDY) / n, z0 = UDZ + i * 0.27, z1 = z0 + 0.27; item((x0 + x1) / 2, y, (z0 + z1) / 2, () => face([[x0, y + (FLOOR - LDY) / n, z0], [x1, y + (FLOOR - LDY) / n, z0], [x1, y, z0], [x0, y, z0]], '#4a4845') + face([[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], ['#7b7873', '#6e6b67', '#85817b'][i % 3])); }
       for (let k = 0; k < 4; k++) { const za = UDZ + (k / 4) * n * 0.27, zb = UDZ + ((k + 1) / 4) * n * 0.27, ya = FLOOR - (k / 4) * (FLOOR - LDY), yb = FLOOR - ((k + 1) / 4) * (FLOOR - LDY); item(5.24, (ya + yb) / 2 + 0.5, (za + zb) / 2, () => box(5.2, yb - 0.1, zb - 0.04, 5.28, yb + 0.95, zb + 0.04, '#8a6e4e', '#6e573d') + face([[5.24, ya + 0.95, za], [5.24, yb + 0.95, zb], [5.24, yb + 1.02, zb], [5.24, ya + 1.02, za]], '#a0825c') + face([[5.24, ya + 0.5, za], [5.24, yb + 0.5, zb], [5.24, yb + 0.55, zb], [5.24, ya + 0.55, za]], '#8a6e4e')); } }
@@ -225,7 +227,7 @@ let S7b; const initS7b = () => {
     // lichen and moss on the granite (flat patches), reflections on the lake
     const PATCH = []; { const q = rng(7560); for (let i = 0; i < 46; i++) { const Z = 3.1 + q() * 4.6, X = -12 + q() * 24; if (Z > SHZ1 + 0.1 && Z < LDZ0 && X > LDX0 - 0.3 && X < LDX1 + 0.3 && Z > LDZ0 - 0.2) continue; if (Z < UDZ + 0.1 && X > -6.6) continue; PATCH.push({ X, Z, w: 0.12 + q() * (i % 4 === 3 ? 0.7 : 0.3), col: ['#8f927f', '#a6a894', '#5f6f3c', '#556a34', '#b3b5a0'][i % 5] }); } }
     const REFL = []; { const q = rng(7590); for (let i = 0; i < 40; i++) REFL.push({ X: (q() - 0.5) * 60, Z: 18 + q() * 60, w: 1.5 + q() * 5, h: 0.12 + q() * 0.3, col: ['#efd9c6', '#f4e2c8', '#a9aec2', '#c9c3d2', '#f0cdb4'][Math.floor(q() * 5)], o: 0.35 + q() * 0.35 }); }
-    const sdad = makePersonBack(stPpl, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#8f8a86', bald: 1, shoe: '#e6e3dd' });
+    const sdad = makePersonBack(stPpl, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#6b6258', bald: 0, shoe: '#e6e3dd' });
     const sson = makePersonBack(stPpl, { top: '#243049', shorts: '#15161a', skin: '#e2b18e', hair: '#6a4a30', shoe: '#2a2b30' });
     const sdil = makePersonBack(stPpl, { top: '#f1efe9', shorts: '#e7e6b8', skin: '#e6bf9c', hair: '#1c1714', pony: true, shoe: '#f0eee8' });
     // the two chairs in front of them (same cut-outs as the dusk scene's deck)
@@ -233,6 +235,9 @@ let S7b; const initS7b = () => {
     chRed.innerHTML = `<path fill="#b8302c" d="M-60 -10 L40 -18 L50 20 L-50 30Z"/><path fill="#c8403a" d="M-40 -80 L20 -86 L30 -20 L-36 -14Z"/><path fill="#8a2420" d="M-66 -34 L-40 -36 L-40 30 L-60 32Z"/><path fill="#8a2420" d="M34 -40 L58 -42 L56 22 L40 22Z"/><path fill="#9a2a26" d="M-70 -40 L-36 -42 L-36 -34 L-70 -32Z"/>`;
     chFold.innerHTML = `<path fill="none" stroke="#2a2a2e" stroke-width="5" d="M-40 60 L0 -70 M40 60 L10 -20 M-40 -10 L50 -20"/><path fill="#7a7c84" d="M-6 -86 L46 -80 L40 -10 L-20 -16Z"/><path fill="#60626a" d="M-40 -14 L50 -22 L56 -6 L-36 2Z"/>`;
     // where the dusk scene's first frame has them (screen x, y, scale) — the walk settles exactly onto these
+    // S8 eases its first 46 frames in from a slightly wider view (see S8's lead-in), so the targets it is matched to follow that
+    const leadK = (f) => 1 - 0.07 * (1 - E.outSine(seg(f - 300, -20, 30)));
+    const tAt = (T, f) => { const k = leadK(f); return [960 + (T[0] - 960) * k, 540 + (T[1] - 540) * k, T[2] * k]; };
     const S8AT = [[553, 807, 2.257], [914, 785, 2.301], [1320.5, 771, 2.144], [463, 1033, 2.257], [1072, 1055, 1.918]];
     const PPL = [[sdad, -1.55, 15.35, 1.0], [sson, -0.17, 15.1, 1.02], [sdil, 1.37, 14.85, 0.95]];
     const SKY3 = grad(defs, [[0, '#b9b6c8'], [0.7, '#d8c8c8'], [1, '#e6d0c6']]), LAKE3 = grad(defs, [[0, '#d8c8c8'], [0.3, '#c7bfc7'], [1, '#8f98ab']]);
@@ -274,16 +279,16 @@ let S7b; const initS7b = () => {
       stBack.innerHTML = bk; stFront.innerHTML = fr;
       // the three at the rail, where the next scene finds them
       const breathe = Math.sin(f * 0.07);
-      const m = E.inOutSine(seg(f, 258, 284));
+      const m = E.inOutSine(seg(f, 256, 280));
       PPL.forEach(([rig, X, Z, hs], i) => {
         const pose = [{ alA: -8, arA: -8, lean: -1 + breathe * 0.4 }, { alA: -6, arA: -6, lean: 0.6 * breathe }, { alA: 18, arA: 26 }][i];
         const q = tr3(X, LDY, Z); if (q[2] < 0.3) { rig.set(Object.assign({ x: -999, y: -999, s: 0.01 }, pose)); return; }
-        const sp = proj(q), sc = (FS / q[2] / 120) * hs, T = S8AT[i];
+        const sp = proj(q), sc = (FS / q[2] / 120) * hs, T = tAt(S8AT[i], f);
         rig.set(Object.assign({ x: lerp(sp[0], T[0], m), y: lerp(sp[1], T[1], m), s: lerp(sc, T[2], m) }, pose));
       });
       [[chRed, -1.9, 13.8, 3], [chFold, 0.45, 13.7, 4]].forEach(([g, X, Z, i]) => {
         const q = tr3(X, LDY, Z); if (q[2] < 0.3) { g.style.display = 'none'; return; } g.style.display = '';
-        const sp = proj(q), sc = FS / q[2] / 120 * (i === 4 ? 0.85 : 1), T = S8AT[i];
+        const sp = proj(q), sc = FS / q[2] / 120 * (i === 4 ? 0.85 : 1), T = tAt(S8AT[i], f);
         g.setAttribute('transform', `translate(${cl(lerp(sp[0], T[0], m), lerp(sp[1], T[1], m))}) scale(${R2(lerp(sc, T[2], m) * 1000) / 1000})`);
       });
     }
@@ -296,13 +301,13 @@ let S7b; const initS7b = () => {
       [240, -5.25, 5.95, 5.8, 0.38, 0.36],  // at the edge of the shelf, the inukshuk and the chairs going by on the right
       [258, -2.6, 5.05, 8.6, 0.12, 0.42],   // gliding down over the rock, the three below
       [273, -0.42, 4.54, 11.4, 0.014, 0.38],
-      [284, 0, 4.45, 11.98, 0, 0.37],       // behind the three, as the dusk scene opens
+      [300, 0, 4.45, 11.9, 0, 0.37],        // behind the three, still gliding in as the dusk scene takes over (no stop)
     ];
     const camPath = (f) => {
       const n = KEYS.length; if (f <= KEYS[0][0]) f = KEYS[0][0]; if (f >= KEYS[n - 1][0]) f = KEYS[n - 1][0];
       let i = 0; while (i < n - 2 && f > KEYS[i + 1][0]) i++;
       const k0 = KEYS[Math.max(0, i - 1)], k1 = KEYS[i], k2 = KEYS[i + 1], k3 = KEYS[Math.min(n - 1, i + 2)], h = k2[0] - k1[0], t = (f - k1[0]) / h;
-      const tan = (a, b, c, j, end) => (end ? 0 : ((c[j] - a[j]) / (c[0] - a[0])) * h);
+      const tan = (a, b, c, j, end) => (end ? b[j] - a[j] : ((c[j] - a[j]) / (c[0] - a[0])) * h);
       const out = [];
       for (let j = 1; j <= 5; j++) {
         const m1 = tan(k0, k1, k2, j, i === 0), m2 = tan(k1, k2, k3, j, i + 1 === n - 1);
@@ -376,6 +381,6 @@ let S7b; const initS7b = () => {
         ctx.globalAlpha = 1;
       }
     }
-    return { a: 1200, b: 1500, update, fx, camAt };
+    return { a: 1400, b: 1700, update, fx, camAt, KEYS };
   })();
 };

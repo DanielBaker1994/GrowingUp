@@ -96,7 +96,7 @@ let S7; const initS7 = () => {
       ordr(act, lud, wolf, Lp.y, W.y);
     }
     const fx = (ctx, f) => { motes(ctx, f, 60, 12, '#fff3cf', 2.2, 0.8); ctx.globalCompositeOperation = 'lighter'; rays(ctx, 1700, 120, f, 0.06, 'rgba(255,230,170,A)'); ctx.globalCompositeOperation = 'source-over'; };
-    return { a: 1000, b: 1200, update, fx, camAt };
+    return { a: 1200, b: 1400, update, fx, camAt };
   })();
 };
 
@@ -138,7 +138,7 @@ let S8; const initS8 = () => {
       [320, 520, 720, 900, 1060, 1230].map((x) => `<rect x="${x - 5}" y="${x === 1230 ? 462 : R2(lerp(428, 396, (x - 300) / 760))}" width="10" height="${x === 1230 ? 110 : 108}" fill="#94704c"/>`).join('') +
       `<rect x="300" y="428" width="10" height="112" fill="#94704c"/>`;
     const ppl = svgEl('g'); DK.appendChild(ppl);
-    const dad = makePersonBack(ppl, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#8f8a86', bald: 1, shoe: '#e6e3dd' });
+    const dad = makePersonBack(ppl, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#6b6258', bald: 0, shoe: '#e6e3dd' });
     const son = makePersonBack(ppl, { top: '#243049', shorts: '#15161a', skin: '#e2b18e', hair: '#6a4a30', shoe: '#2a2b30' });
     const dil = makePersonBack(ppl, { top: '#f1efe9', shorts: '#e7e6b8', skin: '#e6bf9c', hair: '#1c1714', pony: true, shoe: '#f0eee8' });
     // chairs: red Adirondack and a folding chair, in front of the people
@@ -183,8 +183,10 @@ let S8; const initS8 = () => {
     // ----- camera: close on the three at the rail -> pull back through the glass to the dogs at the sill -----
     const FOC = [740, 545];
     const pull = (f) => E.inOutCubic(seg(f, 168, 322));
-    const camOut = (f) => { const k = pull(f); return { s: lerp(3.05, 1.0, k) * (1 + 0.03 * (1 - k) * E.inOutSine(seg(f, 0, 168))), fx: lerp(FOC[0], 960, k), fy: lerp(FOC[1], 540, k) }; };
-    const camIn = (f) => { const k = pull(f); return { s: lerp(4.6, 1.0, k), fx: lerp(FOC[0] + 30, 960, k), fy: lerp(FOC[1] - 40, 540, k) }; };
+    // the first 46 frames ease in from a slightly wider view (and a soft 20-frame dissolve from the stairs lands on it), so the walk down the stairs flows into this instead of stopping
+    const lead = (f) => 1 - 0.07 * (1 - E.outSine(seg(f, -20, 30)));
+    const camOut = (f) => { const k = pull(f); return { s: lerp(3.05, 1.0, k) * lead(f) * (1 + 0.03 * (1 - k) * E.inOutSine(seg(f, 0, 168))), fx: lerp(FOC[0], 960, k), fy: lerp(FOC[1], 540, k) }; };
+    const camIn = (f) => { const k = pull(f); return { s: lerp(4.6, 1.0, k) * lead(f), fx: lerp(FOC[0] + 30, 960, k), fy: lerp(FOC[1] - 40, 540, k) }; };
     const camAt = camOut;
     function update(f) {
       const co = camOut(f), ci = camIn(f), k = pull(f);
@@ -214,6 +216,6 @@ let S8; const initS8 = () => {
       const k = pull(f);
       motes(ctx, f, Math.round(30 * k), 23, '#ffe8c8', 2, 0.5);
     };
-    return { a: 1500, b: 1900, update, fx, camAt };
+    return { a: 1700, b: 2100, update, fx, camAt };
   })();
 };

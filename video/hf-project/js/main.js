@@ -1,12 +1,12 @@
 /* main.js — scene switching, transitions, grade, master draw(f). No on-screen type: the pictures carry it. */
-const TOTAL = 2400;
+const TOTAL = 2600;
 function boot() {
-initS1(); initS2(); initS3(); initS4(); initS5(); initS7(); initS7b(); initS8(); initS9();
-// ice crossing · the deck · the dock · mowing · sold · the great room · the cat on the rail · 2025 at the window · back out to the lake
-const SCN = [S1, S2, S3, S4, S5, S7, S7b, S8, S9];
-const IDS = ['sc1', 'sc2', 'sc3', 'sc4', 'sc5', 'sc7', 'sc7b', 'sc8', 'sc9'];
-const CUTS = [0, 300, 500, 700, 900, 1000, 1200, 1500, 1900, TOTAL];
-const iS8 = SCN.indexOf(S8), iS7b = SCN.indexOf(S7b);
+initS1(); initS2(); initS3(); initS4(); initS5(); initS6(); initS7(); initS7b(); initS8(); initS9();
+// ice crossing · the deck · the dock · mowing · sold · the place from above · the great room · the cat on the rail · 2025 at the window · back out to the lake
+const SCN = [S1, S2, S3, S4, S5, S6, S7, S7b, S8, S9];
+const IDS = ['sc1', 'sc2', 'sc3', 'sc4', 'sc5', 'sc6', 'sc7', 'sc7b', 'sc8', 'sc9'];
+const CUTS = [0, 300, 500, 700, 900, 1000, 1200, 1400, 1700, 2100, TOTAL];
+const iS8 = SCN.indexOf(S8), iS7b = SCN.indexOf(S7b), iS6 = SCN.indexOf(S6), iS7 = SCN.indexOf(S7);
 
 /* ---------- canvases / overlays ---------- */
 const fx = $('fx').getContext('2d');
@@ -41,8 +41,14 @@ function draw(t) {
     tear.style.display = 'block'; tear.style.clipPath = tearPoly(x, 5);
   }
   $('sc2').style.zIndex = 1; tear.style.zIndex = 2; $('sc3').style.zIndex = 3; $('fx').style.zIndex = 9;
+  // up and away over the place: the great room's window comes in under the last frames, the lake at the top of the picture
+  if (idx === iS6 && f >= CUTS[iS7] - 18) {
+    const k = E.inOutSine(seg(f, CUTS[iS7] - 18, CUTS[iS7]));
+    $('sc7').style.display = 'block'; $('sc7').style.zIndex = 4; SCN[iS7].update(f - CUTS[iS7], f);
+    $('sc6').style.zIndex = 5; $('sc6').style.opacity = R2(1 - k);
+  }
   // down the stairs: the lake deck dissolves in under the last steps, landing on the first frame of the dusk scene
-  const DS = [CUTS[iS8] - 16, CUTS[iS8]];  // the walk has landed by then, so this only blends the two drawings
+  const DS = [CUTS[iS8] - 20, CUTS[iS8]];  // the three are pinned to S8's places by then and the camera is still gliding, so this only blends the two drawings of the deck
   if (idx === iS7b && f >= DS[0]) {
     const k = E.inOutSine(seg(f, DS[0], DS[1]));
     $('sc8').style.display = 'block'; $('sc8').style.zIndex = 4; SCN[iS8].update(f - CUTS[iS8], f);
@@ -53,8 +59,8 @@ function draw(t) {
   fl += kf(f, [[290, 0], [299, 0.95], [303, 0.95], [322, 0]], E.inOutSine);
   fl += kf(f, [[692, 0], [699, 0.75], [703, 0.75], [716, 0]], E.inOutSine);
   // through the glass: out of the room, turned around to face the dogs from the deck
-  fl += kf(f, [[1890, 0], [1899, 0.85], [1902, 0.85], [1922, 0]], E.inOutSine);
-  lk += kf(f, [[496, 0], [512, 0.55], [540, 0]], E.inOutSine) + kf(f, [[690, 0], [699, 1], [704, 1], [728, 0]], E.inOutSine) + kf(f, [[1192, 0], [1201, 0.85], [1208, 0.6], [1236, 0]], E.inOutSine);
+  fl += kf(f, [[2090, 0], [2099, 0.85], [2102, 0.85], [2122, 0]], E.inOutSine);
+  lk += kf(f, [[496, 0], [512, 0.55], [540, 0]], E.inOutSine) + kf(f, [[690, 0], [699, 1], [704, 1], [728, 0]], E.inOutSine) + kf(f, [[1392, 0], [1401, 0.85], [1408, 0.6], [1436, 0]], E.inOutSine);
   const dark = kf(f, [[992, 0], [999, 1], [1003, 1], [1014, 0]], E.inOutSine);
   flash.style.opacity = R2(Math.min(1, fl));
   leak.style.opacity = R2(Math.min(1, lk));

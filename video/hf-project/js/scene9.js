@@ -221,6 +221,8 @@ let S9; const initS9 = () => {
     // on the shelf, left to right from the lake: green, blue, brown and red chairs, then the inukshuk by the stairs
     bb(3.9, [[0.3, '#4f9a5a'], [1.2, '#3b78b8'], [2.1, '#6b4a36'], [3.0, '#b8302c']].map(([x, col]) => `<g transform="translate(${cm(x)} ${cmy(SHELF)}) scale(0.9)">${muskokaSVG(col)}</g>`).join(''));
     bb(4.75, `<g transform="translate(${cm(3.9)} ${cmy(SHELF)})">${inukshukSVG()}</g>`);
+    // a man and a woman sitting together in the blue and brown chairs, looking out at the lake (us)
+    bb(3.85, `<g transform="translate(${cm(1.2)} ${cmy(SHELF)}) scale(0.9)">${sitterSVG({ top: '#7a8f4e', pants: '#3b4150', hair: '#4a3a2e', lean: 4 })}</g><g transform="translate(${cm(2.1)} ${cmy(SHELF)}) scale(0.9)">${sitterSVG({ top: '#e9e4d6', pants: '#44505f', hair: '#7a5a3c', long: true, lean: -4, skin: '#e6bf9c' })}</g>`);
     bb(5.0, rk);
     const stairsG = plane();
     // ============ the lake deck ============
@@ -228,7 +230,7 @@ let S9; const initS9 = () => {
     const ppl = bb(15.1);
     const dil = makePersonBack(ppl.g, { top: '#f1efe9', shorts: '#e7e6b8', skin: '#e6bf9c', hair: '#1c1714', pony: true, shoe: '#f0eee8', front: true });
     const son = makePersonBack(ppl.g, { top: '#243049', shorts: '#15161a', skin: '#e2b18e', hair: '#6a4a30', shoe: '#2a2b30', front: true });
-    const dad = makePersonBack(ppl.g, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#8f8a86', bald: 1, shoe: '#e6e3dd', front: true });
+    const dad = makePersonBack(ppl.g, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#6b6258', bald: 0, shoe: '#e6e3dd', front: true });
     bb(14.2, `<g transform="translate(${cm(1.9)} ${cmy(LDY)}) scale(0.83)"><path fill="#9a2a26" d="M-50 -10 L60 -18 L50 20 L-60 30Z"/><path fill="#b8302c" d="M-30 -86 L40 -80 L36 -14 L-20 -20Z"/><path fill="#8a2420" d="M-58 -42 L-34 -40 L-40 22 L-56 22Z"/><path fill="#8a2420" d="M40 -36 L66 -34 L60 32 L40 30Z"/></g>` +
       `<g transform="translate(${cm(-0.8)} ${cmy(LDY)}) scale(0.7) translate(0 -60)"><path fill="none" stroke="#2a2a2e" stroke-width="5" d="M-40 60 L0 -70 M40 60 L10 -20 M-40 -10 L50 -20"/><path fill="#7a7c84" d="M-6 -86 L46 -80 L40 -10 L-20 -16Z"/><path fill="#60626a" d="M-40 -14 L50 -22 L56 -6 L-36 2Z"/></g>`);
     const ldSides = plane();
@@ -260,12 +262,12 @@ let S9; const initS9 = () => {
     for (let i = 0; i < 5; i++) rt += whitePine(cm(12.5 + i * 2.4), cmy(0.8), 2000 + i * 300, 9320 + i, '#2d3b37', '#262320');
     rt += spruce2(cm(11.2), cmy(0.8), 1500, 520, 9330, '#2c3a36');
     bb(12.5, rt);
-    // ============ Dad in the kayak ============
+    // ============ Mom in the kayak ============
     const kayakFar = plane();
     const kd = bb(KZ);
     const paddle = svgEl('g'); kd.g.appendChild(paddle);
     paddle.innerHTML = `<rect x="-110" y="-2.2" width="220" height="4.4" rx="2.2" fill="#2c2c30"/><path fill="#d8d3c8" d="M-138 -10 Q-114 -12 -106 -4 L-106 4 Q-114 12 -138 10Z"/><path fill="#d8d3c8" d="M138 -10 Q114 -12 106 -4 L106 4 Q114 12 138 10Z"/>`;
-    const kdad = makePersonBack(kd.g, { top: '#4c6fa4', shorts: '#1b1c20', skin: '#dfae8c', hair: '#8f8a86', bald: 1, shoe: '#e6e3dd' });
+    const kdad = makePersonBack(kd.g, { top: '#d0553f', shorts: '#2b3345', skin: '#e6bf9c', hair: '#8e8a90', pony: true, hat: '#f2ead6', shoe: '#f0eee8' });
     const pfd = svgEl('g'); kd.g.appendChild(pfd);
     pfd.innerHTML = `<path fill="#3d5a44" d="M-25 -170 Q0 -178 25 -170 L26 -112 Q0 -106 -26 -112Z"/><path fill="#2f4836" d="M-26 -126 Q0 -120 26 -126 L26 -112 Q0 -106 -26 -112Z"/><rect x="-18" y="-160" width="36" height="3" fill="#c9c3b3" opacity=".7"/><rect x="-18" y="-140" width="36" height="3" fill="#c9c3b3" opacity=".7"/>`;
     const kayakNear = plane();
@@ -348,6 +350,6 @@ let S9; const initS9 = () => {
       for (let i = 0; i < 26; i++) { const q = rng(9600 + i), X = -16 + q() * 32, Y = 0.6 + q() * 2.6, Z = 13 + q() * 5, d = C.z - Z; if (d < 1) continue; const p = P(X + Math.sin(f * 0.02 + i) * 0.3, Y + Math.sin(f * 0.03 + i * 2) * 0.15, d), on = Math.max(0, Math.sin(f * 0.07 + i * 2.3)); if (on < 0.2) continue; ctx.globalAlpha = k * on * 0.85; const g = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], 9); g.addColorStop(0, 'rgba(255,240,160,1)'); g.addColorStop(1, 'rgba(255,220,120,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p[0], p[1], 9, 0, 6.283); ctx.fill(); }
       ctx.globalAlpha = 1;
     }
-    return { a: 1900, b: 2400, update, fx, camAt };
+    return { a: 2100, b: 2600, update, fx, camAt };
   })();
 };
