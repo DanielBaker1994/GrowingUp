@@ -188,6 +188,10 @@ let S8; const initS8 = () => {
     const camAt = camOut;
     function update(f) {
       const co = camOut(f), ci = camIn(f), k = pull(f);
+      // after Ruby's head tilt: push through the glass between Wolfgang and Ruby (nothing moves before 380)
+      const th = E.inCubic(seg(f, 380, 400));
+      if (th > 0) { co.s *= 1 + 0.9 * th; co.fx = lerp(co.fx, 1100, th); co.fy = lerp(co.fy, 470, th); ci.s *= 1 + 2.4 * th; ci.fx = lerp(ci.fx, 1100, th); ci.fy = lerp(ci.fy, 470, th); }
+      svg.style.filter = th > 0.02 ? `blur(${R2(th * 9)}px)` : 'none';
       outG.setAttribute('transform', `translate(960 540) scale(${R2(co.s * 1000) / 1000}) translate(${R2(-co.fx)} ${R2(-co.fy)})`);
       inG.setAttribute('transform', `translate(960 540) scale(${R2(ci.s * 1000) / 1000}) translate(${R2(-ci.fx)} ${R2(-ci.fy)})`);
       inG.style.display = k < 0.005 ? 'none' : ''; const fi = E.inOutSine(seg(k, 0.0, 0.22)); inG.style.opacity = R2(fi); inG.style.filter = fi < 1 ? `blur(${R2((1 - fi) * 14)}px)` : 'none';
@@ -210,6 +214,6 @@ let S8; const initS8 = () => {
       const k = pull(f);
       motes(ctx, f, Math.round(30 * k), 23, '#ffe8c8', 2, 0.5);
     };
-    return { a: 1200, b: 1700, update, fx, camAt };
+    return { a: 1500, b: 1900, update, fx, camAt };
   })();
 };

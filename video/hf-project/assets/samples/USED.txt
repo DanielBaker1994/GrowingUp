@@ -11,6 +11,7 @@ piano/D1.mp3
 piano/D2.mp3
 piano/D4.mp3
 piano/D5.mp3
+piano/E5.mp3
 piano/Fs4.mp3
 piano/Fs5.mp3
 piano/G2.mp3

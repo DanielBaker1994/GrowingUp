@@ -1,11 +1,12 @@
 /* main.js — scene switching, transitions, grade, master draw(f). No on-screen type: the pictures carry it. */
-const TOTAL = 1700;
+const TOTAL = 2400;
 function boot() {
-initS1(); initS2(); initS3(); initS4(); initS5(); initS7(); initS8();
-// ice crossing · the deck · the dock · mowing · sold · the great room · 2025 at the window
-const SCN = [S1, S2, S3, S4, S5, S7, S8];
-const IDS = ['sc1', 'sc2', 'sc3', 'sc4', 'sc5', 'sc7', 'sc8'];
-const CUTS = [0, 300, 500, 700, 900, 1000, 1200, TOTAL];
+initS1(); initS2(); initS3(); initS4(); initS5(); initS7(); initS7b(); initS8(); initS9();
+// ice crossing · the deck · the dock · mowing · sold · the great room · the cat on the rail · 2025 at the window · back out to the lake
+const SCN = [S1, S2, S3, S4, S5, S7, S7b, S8, S9];
+const IDS = ['sc1', 'sc2', 'sc3', 'sc4', 'sc5', 'sc7', 'sc7b', 'sc8', 'sc9'];
+const CUTS = [0, 300, 500, 700, 900, 1000, 1200, 1500, 1900, TOTAL];
+const iS8 = SCN.indexOf(S8), iS7b = SCN.indexOf(S7b);
 
 /* ---------- canvases / overlays ---------- */
 const fx = $('fx').getContext('2d');
@@ -40,10 +41,19 @@ function draw(t) {
     tear.style.display = 'block'; tear.style.clipPath = tearPoly(x, 5);
   }
   $('sc2').style.zIndex = 1; tear.style.zIndex = 2; $('sc3').style.zIndex = 3; $('fx').style.zIndex = 9;
+  // down the stairs: the lake deck dissolves in under the last steps, landing on the first frame of the dusk scene
+  const DS = [CUTS[iS8] - 30, CUTS[iS8]];
+  if (idx === iS7b && f >= DS[0]) {
+    const k = E.inOutSine(seg(f, DS[0], DS[1]));
+    $('sc8').style.display = 'block'; $('sc8').style.zIndex = 4; SCN[iS8].update(f - CUTS[iS8], f);
+    $('sc7b').style.zIndex = 5; $('sc7b').style.opacity = R2(1 - k);
+  }
   // flash / leak / dips
   let fl = 0, lk = 0;
   fl += kf(f, [[290, 0], [299, 0.95], [303, 0.95], [322, 0]], E.inOutSine);
   fl += kf(f, [[692, 0], [699, 0.75], [703, 0.75], [716, 0]], E.inOutSine);
+  // through the glass: out of the room, turned around to face the dogs from the deck
+  fl += kf(f, [[1890, 0], [1899, 0.85], [1902, 0.85], [1922, 0]], E.inOutSine);
   lk += kf(f, [[496, 0], [512, 0.55], [540, 0]], E.inOutSine) + kf(f, [[690, 0], [699, 1], [704, 1], [728, 0]], E.inOutSine) + kf(f, [[1192, 0], [1201, 0.85], [1208, 0.6], [1236, 0]], E.inOutSine);
   const dark = kf(f, [[992, 0], [999, 1], [1003, 1], [1014, 0]], E.inOutSine);
   flash.style.opacity = R2(Math.min(1, fl));
@@ -55,7 +65,7 @@ function draw(t) {
   // film grain jitter
   const gr = rng(Math.floor(f / 2) * 7 + 3);
   grainEl.style.backgroundPosition = `${Math.floor(gr() * 512)}px ${Math.floor(gr() * 512)}px`;
-  const fo = kf(f, [[1668, 0], [1699, 1]], E.inSine);
+  const fo = kf(f, [[TOTAL - 32, 0], [TOTAL - 1, 1]], E.inSine);
   finalEl.style.opacity = R2(Math.max(fo, 1 - E.outCubic(seg(f, 0, 14))));
 }
 const root = $('root');

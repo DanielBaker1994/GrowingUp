@@ -11,7 +11,7 @@ from scipy.signal import butter, sosfilt
 SR, FPS = 44100, 30
 BAR_F = 100
 BEAT = BAR_F / 3 / FPS  # seconds per beat
-DUR = 1700 / FPS + 2.0
+DUR = 2400 / FPS + 2.0
 N = int(SR * DUR)
 HERE = os.path.dirname(os.path.abspath(__file__))
 SAMP = os.path.join(HERE, '..', 'assets', 'samples')
@@ -68,35 +68,45 @@ G2, D2 = 43, 38
 GCH, DCH = [59, 62, 66], [57, 61, 66]  # Gmaj7 / Dmaj7 voicings (B3 D4 F#4 / A3 C#4 F#4)
 H = lambda b, beat, rng_=np.random.default_rng(7): beat * BEAT * 0 + rng_.uniform(-0.012, 0.012)  # humanise
 
-# ---- left hand: bass on 1, chord on 2, bars 0..15; final bar 16 ----
-for b in range(16):
-    bass, ch = (G2, GCH) if b % 2 == 0 else (D2, DCH)
-    v = 0.34 if b < 4 else 0.4
+# ---- left hand: bass on 1, chord on 2. G/D alternate bars 0..13; bar 14 holds D a second bar (a breath as the
+# camera drops down the stairs) so the second phrase lands on G at bar 15 with the dogs; bars 15..22 alternate again;
+# final chord on bar 23 (frame 2300) rings into the fade ----
+LAST = 23
+def is_g(b): return (b % 2 == 0) if b <= 13 else (False if b == 14 else (b - 15) % 2 == 0)
+for b in range(LAST):
+    bass, ch = (G2, GCH) if is_g(b) else (D2, DCH)
+    v = 0.34 if b < 4 else (0.3 if b == 14 else 0.4)
     put(note('piano', bass, 3.2, v, release=1.6, bright=0.8), bt(b) + H(b, 0), 0.95, -0.25)
     for k, m in enumerate(ch):
         put(note('piano', m, 2.1, v * 0.62, release=1.4, bright=0.75), bt(b, 1) + 0.008 * k + H(b, 1), 0.85, -0.1 + 0.08 * k)
 # final: D major 7 spread, bass octave
 for k, (m, v) in enumerate(((26, 0.3), (38, 0.36), (57, 0.26), (61, 0.22), (66, 0.24), (74, 0.3))):
-    put(note('piano', m, 5.5, v, release=2.5, bright=0.8), bt(16) + 0.03 * k, 0.9, -0.2 + 0.08 * k)
+    put(note('piano', m, 5.5, v, release=2.5, bright=0.8), bt(LAST) + 0.03 * k, 0.9, -0.2 + 0.08 * k)
 
-# ---- right hand melody (bars 4..15), then the resolution to D5 in bar 16 ----
+# ---- right hand melody: phrase (bars 4..7), the long F#4 (8..11), a few quiet notes for the cat on the rail (12..14),
+# the phrase again with the dogs (15..18), a closing line for the pull-back to the lake (19..22), D5 in bar 23 ----
 PHRASE = [(4, 1, 78, 1), (4, 2, 81, 1), (5, 0, 79, 1), (5, 1, 78, 1), (5, 2, 73, 1), (6, 0, 71, 1), (6, 1, 73, 1), (6, 2, 74, 1), (7, 0, 69, 3)]
-MEL = PHRASE + [(8, 0, 66, 12)] + [(b + 8, bb, m, d) for (b, bb, m, d) in PHRASE]
+CAT = [(12, 1, 71, 1), (12, 2, 74, 1), (13, 0, 73, 3), (14, 1, 76, 2)]
+CLOSE = [(19, 1, 78, 1), (19, 2, 81, 1), (20, 0, 79, 1), (20, 1, 78, 1), (20, 2, 76, 1), (21, 0, 74, 3), (22, 0, 73, 3)]
+MEL = PHRASE + [(8, 0, 66, 12)] + CAT + [(b + 11, bb, m, d) for (b, bb, m, d) in PHRASE] + CLOSE
 for (b, bb, m, d) in MEL:
-    put(note('piano', m, d * BEAT, 0.46, release=1.8, bright=0.85), bt(b, bb) + H(b, bb), 0.8, 0.12)
-put(note('piano', 74, 4.0, 0.42, release=2.5, bright=0.8), bt(16, 1), 0.8, 0.12)
+    v = 0.36 if 12 <= b <= 14 else 0.46
+    put(note('piano', m, d * BEAT, v, release=1.8, bright=0.85), bt(b, bb) + H(b, bb), 0.8, 0.12)
+put(note('piano', 74, 4.0, 0.42, release=2.5, bright=0.8), bt(LAST, 1), 0.8, 0.12)
 
-# ---- cello: a bowed bass under bars 4..16, swelling in ----
-for b in range(4, 17):
-    m = G2 if b % 2 == 0 else D2
-    if b == 16: m = D2
-    put(note('cello', m, BAR_F / FPS + (2.0 if b == 16 else 0.25), 0.5, attack=0.45, release=1.2, bright=0.6), bt(b) - 0.05, 0.42 * (0.7 if b < 8 else 1.0), -0.3)
+# ---- cello: a bowed bass under bars 4..23, swelling in ----
+for b in range(4, LAST + 1):
+    m = G2 if (b < LAST and is_g(b)) else D2
+    put(note('cello', m, BAR_F / FPS + (2.0 if b == LAST else 0.25), 0.5, attack=0.45, release=1.2, bright=0.6), bt(b) - 0.05, 0.42 * (0.7 if b < 8 or b == 14 else 1.0), -0.3)
 
 # ---- violin: the long F#4 under bars 8..11, then doubling the second phrase an octave down, softly ----
 put(note('violin', 66, 4 * BAR_F / FPS - 0.4, 0.42, attack=1.4, release=1.6, bright=0.55), bt(8) + 0.2, 0.34, 0.35)
 for (b, bb, m, d) in PHRASE:
-    put(note('violin', m - 12, d * BEAT + 0.15, 0.4, attack=0.22, release=0.9, bright=0.55), bt(b + 8, bb), 0.3, 0.35)
-put(note('violin', 62, 4.0, 0.4, attack=0.5, release=2.0, bright=0.5), bt(16, 1), 0.28, 0.35)
+    put(note('violin', m - 12, d * BEAT + 0.15, 0.4, attack=0.22, release=0.9, bright=0.55), bt(b + 11, bb), 0.3, 0.35)
+# out on the water: two long held notes under the closing line
+put(note('violin', 69, 2 * BAR_F / FPS - 0.3, 0.38, attack=1.2, release=1.4, bright=0.5), bt(19) + 0.2, 0.26, 0.35)
+put(note('violin', 66, 2 * BAR_F / FPS - 0.3, 0.38, attack=1.2, release=1.4, bright=0.5), bt(21) + 0.2, 0.26, 0.35)
+put(note('violin', 62, 4.0, 0.4, attack=0.5, release=2.0, bright=0.5), bt(LAST, 1), 0.28, 0.35)
 
 # ---- room: a short, soft plate so it breathes without washing ----
 def reverb(x, rt=2.4, wet=0.22):

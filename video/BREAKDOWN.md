@@ -1,7 +1,7 @@
 # BREAKDOWN — "Growing up, together." (Kahshe Lake family film)
 
 **Mode:** Original (no reference video). **Category:** `editorial-collage` (paper-cut diorama, half stills-in-code, half characters in motion). The skill's `liquid-glass-ui` look was ruled out. Nothing here is a UI showcase.
-**Spec:** 1920x1080, 30 fps, 1700 frames (56.67 s), stereo audio. **Beat grid:** one 3/4 bar = 100 f. Every cut lands on a bar line.
+**Spec:** 1920x1080, 30 fps, 2400 frames (80 s), stereo audio. **Beat grid:** one 3/4 bar = 100 f. Every cut lands on a bar line.
 
 ## Donor numbers used (from the skill's corpus, not copied shots)
 - Cut rhythm: hold 6–10 s on a story beat, one 3–4 s "hush" beat (SOLD) — slower than a SaaS launch on purpose. Long tail settles: 30–45 f, no lockstep starts.
@@ -19,6 +19,13 @@ Family of four (mom, dad, sons born 1992 and 1994) at Kahshe Lake, Ontario. Two 
 **Revision 3:** no on-screen type at all (no years, captions, dog names or end title); the ice no longer cracks; the 2004
 backyard and 2014 scenes are gone; a new deck scene from the family's photo; the dock is seen head-on; new score.
 
+**Revision 4:** two new scenes. Before the dogs at the window: the family's rainy-deck photo (cat_ledge.png), held still,
+then a push onto the cat cut-out on the rail and a move down the side stairs that lands on the first frame of S8.
+After it: out through the glass, facing the three dogs, and a pull-back over the upper deck and the three at the
+lake-deck rail, out across the water until the cottage sits head-on as in CottageFacing.PNG, with Dad in the kayak
+in the foreground looking back at the place. S8 is unchanged up to its last 20 frames (a push into the glass). The
+sound design was rebuilt from recorded sounds.
+
 | # | Frames | When / where | What happens | Camera / transition |
 |---|---|---|---|---|
 | S1 | 0–300 | March, the frozen lake | Family + both dogs walk across the lake at dusk toward the cottage; the windows come on (f175–235). One unbroken walk. | slow push-in 1.0→1.16, parallax. Exit: exposure flash f290–322 |
@@ -27,10 +34,12 @@ backyard and 2014 scenes are gone; a new deck scene from the family's photo; the
 | S4 | 700–900 | July, the country place | The gambrel house at the back of the lawn; Dad on the riding mower, Mom on the push mower, the younger son raking; old schnauzer under the maple, gangly puppy bounding. | slow pan right. Exit: hard cut |
 | S5 | 900–1000 | September | The same house, FOR SALE sign, the SOLD rider drops and swings. Hush beat. | push toward the sign. Exit: dip to black f992–1014 |
 | S7 | 1000–1200 | The great room | Two small black schnauzers tear laps across the pine floor, then hop onto the leather sofa; one flops onto the red pillow. | drift right + push 1.0→1.1. Exit: light leak f1192–1236 |
-| S8 | 1200–1700 | Dusk, the lake deck | Dad, a son and his wife at the rail, seen from behind; the son puts his hands on his head, she turns to them. The camera pulls back through the window: the schnauzer brothers and Ruby rise to the sill one after another and look down at them. | two-plane dolly-out; fade to black f1668–1699 |
+| S7b | 1200–1500 | After the rain, the upper deck | From the family's photo: wet boards, the rail with its string lights and sign, the pine bough, the carved bear, the lake beyond. Held still while the rain thins, then the camera pushes onto the black cat cut-out on the top rail (a drop gathers under its chin and falls), turns to the stair corner and dives down the side stairs toward the lake deck, where the three at the rail come into place. | parallax layers + a 3D stair flight; dissolve f1470–1500 onto S8's first frame |
+| S8 | 1500–1900 | Dusk, the lake deck | Dad, a son and his wife at the rail, seen from behind; the son puts his hands on his head, she turns to them. The camera pulls back through the window: the schnauzer brothers and Ruby rise to the sill one after another and look down at them. | two-plane dolly-out (unchanged); push into the glass f1880–1900, warm flash |
+| S9 | 1900–2400 | Dusk, from the lake | Outside the glass, facing Ruby, Wolfgang and Ludwig at the sill; the camera pulls back over the upper deck (chairs, the cat on its rail, string lights), down past the three at the lake-deck rail, out over the water until the whole cottage sits head-on in its pines, with Dad in the red kayak in front of us, looking back at the place. One slow paddle stroke. | log-scale dolly-out in a 3D-projected set (billboards at depth + projected floors); hold from f2236; fade to black f2368–2399 |
 
 ## Rhythm
-One 3/4 bar = 100 frames (54 BPM). Cuts at f300/500/700/900/1000/1200, all on bar lines. The melody enters with the deck (bar 4 = f400), the long held note covers the sale and the great room (bars 8–11), the second phrase is the 2025 deck (bars 12–15), and the final chord lands at f1600 under the window.
+One 3/4 bar = 100 frames (54 BPM). Cuts at f300/500/700/900/1000/1200/1500/1900, all on bar lines. The melody enters with the deck (bar 4 = f400), the long held note covers the sale and the great room (bars 8–11), a few quiet notes go with the cat on the rail (bars 12–14; bar 14 holds the D chord a second bar so the phrase can land on G), the second phrase is the 2025 deck (bars 15–18), a closing line carries the pull-back to the lake (bars 19–22), and the final chord lands at f2300 while Dad looks back at the cottage.
 
 ## Sound
-**Score** (`tools/make_score.py`): an arrangement of Satie's Gymnopédie No. 1 (public domain) on sampled felt piano, with a bowed cello under the bass from bar 4 and a violin holding the long note and doubling the second phrase. Soft plate reverb. **Sound design** (`tools/make_audio.py`, synthesized, placed from the composition's frames): snow crunch from the walk clock (S1), paws on deck boards computed from each dog's gallop phase and distance plus the red collar's tag (S2), the ramp's hinge creak, the heave, drips into the lake and the knock as it stands (S3), two mowers panned across S4, the SOLD rider's clunk and chain (S5), nails on pine and two sofa thumps (S7), loons, crickets and three paw clicks on the sill (S8).
+**Score** (`tools/make_score.py`): an arrangement of Satie's Gymnopédie No. 1 (public domain) on sampled felt piano, with a bowed cello under the bass from bar 4 and a violin holding the long note and doubling the second phrase. Soft plate reverb. **Sound design** (`tools/make_audio.py`, recorded sounds from `assets/sfx/`, credits in `assets/sfx/CREDITS.md`, placed from the composition's frames): snow footsteps from the walk clock and the dog's paws on the crust under the wind (S1), paws on deck boards from each dog's gallop phase and distance, the collar's tags, birds and the lake (S2), the paper tear, a real door creak slowed down for the ramp hinge, the knock as it stands, drips into the lake (S3), two synthesized mowers panned across S4 (the only synthesized sounds left), the SOLD plank and chain (S5), claws on pine and two sofa landings (S7), the rain thinning, drips off the eave and the cat's chin, birds, and the lake coming up as the camera goes down the stairs (S7b), lapping, crickets and paws on the sill (S8), then crickets, lapping, the hull, the paddle going in and dripping (S9).

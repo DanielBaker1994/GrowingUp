@@ -26,6 +26,13 @@
   EVIDENCE: S3 from behind read as a man standing still; the same beat in profile read as a lift at thumbnail size.
   GOES IN: references/motion-feel.md
 
+- RULE: When sound libraries are blocked but the distro mirror isn't, look in game and education data packages (minetest-data, lugaru-data, scratch, wesnoth-*-data): real recordings with per-file credits in the package's README or copyright file.
+  EVIDENCE: revision 4 replaced every synthesized effect but the mowers with CC0 / CC BY / CC BY-SA / GPL recordings from seven Ubuntu packages.
+  GOES IN: references/audio.md
+- RULE: In a billboard set seen across water, draw the water after everything behind the waterline, and clip any interior billboard to the projected window it is seen through.
+  EVIDENCE: S9 showed pine bases and hills below the shoreline, and the room's pine wall behind the whole cottage, until both were done.
+  GOES IN: references/motion-feel.md
+
 ## Skill feedback
 - GOT IN THE WAY: Original mode assumes ElevenLabs and an image model exist. FIX: add a no-credentials fallback (code-drawn art + numpy synth, as in tools/make_audio.py).
 - Tools written: tools/shot.cjs (stills), tools/make_audio.py (score + SFX placed by frame).
